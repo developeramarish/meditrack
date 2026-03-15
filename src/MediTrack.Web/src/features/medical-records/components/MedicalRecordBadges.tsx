@@ -1,40 +1,34 @@
-import { clsxMerge } from "@/shared/utils/clsxMerge";
+import { Badge } from "@/shared/components/ui/badge";
+import type { BadgeProps } from "@/shared/components/ui/badge";
 import { DiagnosisSeverity, PrescriptionStatus, RecordStatus } from "../types";
 
 interface SeverityBadgeProps {
   readonly severity: DiagnosisSeverity;
-  readonly size?: "sm" | "md";
+  readonly size?: BadgeProps["size"];
 }
 
+const SEVERITY_VARIANTS: Record<DiagnosisSeverity, BadgeProps["variant"]> = {
+  [DiagnosisSeverity.Mild]: "success-bordered",
+  [DiagnosisSeverity.Moderate]: "warning-bordered",
+  [DiagnosisSeverity.Severe]: "error-bordered",
+  [DiagnosisSeverity.Critical]: "error-bordered",
+};
+
 export function SeverityBadge({ severity, size = "sm" }: SeverityBadgeProps) {
-  const colorStyles = {
-    [DiagnosisSeverity.Mild]: "bg-success-50 text-success-700 border-success-200",
-    [DiagnosisSeverity.Moderate]: "bg-warning-50 text-warning-700 border-warning-200",
-    [DiagnosisSeverity.Severe]: "bg-error-50 text-error-700 border-error-200",
-    [DiagnosisSeverity.Critical]: "bg-error-100 text-error-900 border-error-300",
-  };
-
-  const sizeStyles = {
-    sm: "px-2.5 py-0.5 text-xs",
-    md: "px-3 py-1 text-sm",
-  };
-
   return (
-    <span
-      className={clsxMerge(
-        "inline-flex items-center font-medium rounded-full border",
-        sizeStyles[size],
-        colorStyles[severity]
-      )}
+    <Badge
+      variant={SEVERITY_VARIANTS[severity]}
+      size={size}
+      className={severity === DiagnosisSeverity.Critical ? "bg-error-100 text-error-900 border-error-300" : undefined}
     >
       {severity}
-    </span>
+    </Badge>
   );
 }
 
 interface StatusBadgeProps {
   readonly status: RecordStatus;
-  readonly size?: "sm" | "md";
+  readonly size?: BadgeProps["size"];
 }
 
 const STATUS_LABELS: Record<RecordStatus, string> = {
@@ -44,29 +38,18 @@ const STATUS_LABELS: Record<RecordStatus, string> = {
   [RecordStatus.Archived]: "Archived",
 };
 
+const STATUS_VARIANTS: Record<RecordStatus, BadgeProps["variant"]> = {
+  [RecordStatus.Active]: "info-bordered",
+  [RecordStatus.RequiresFollowUp]: "warning-bordered",
+  [RecordStatus.Resolved]: "success-bordered",
+  [RecordStatus.Archived]: "neutral-bordered",
+};
+
 export function StatusBadge({ status, size = "sm" }: StatusBadgeProps) {
-  const colorStyles = {
-    [RecordStatus.Active]: "bg-info-50 text-info-700 border-info-200",
-    [RecordStatus.RequiresFollowUp]: "bg-warning-50 text-warning-700 border-warning-200",
-    [RecordStatus.Resolved]: "bg-success-50 text-success-700 border-success-200",
-    [RecordStatus.Archived]: "bg-neutral-50 text-neutral-700 border-neutral-200",
-  };
-
-  const sizeStyles = {
-    sm: "px-2.5 py-0.5 text-xs",
-    md: "px-3 py-1 text-sm",
-  };
-
   return (
-    <span
-      className={clsxMerge(
-        "inline-flex items-center font-medium rounded-full border",
-        sizeStyles[size],
-        colorStyles[status]
-      )}
-    >
+    <Badge variant={STATUS_VARIANTS[status]} size={size}>
       {STATUS_LABELS[status]}
-    </span>
+    </Badge>
   );
 }
 
@@ -74,24 +57,18 @@ interface PrescriptionStatusBadgeProps {
   readonly status: PrescriptionStatus;
 }
 
-const PRESCRIPTION_COLOR_STYLES: Record<PrescriptionStatus, string> = {
-  [PrescriptionStatus.Active]: "bg-info-50 text-info-700 border-info-200",
-  [PrescriptionStatus.Filled]: "bg-success-50 text-success-700 border-success-200",
-  [PrescriptionStatus.Completed]: "bg-neutral-50 text-neutral-700 border-neutral-200",
-  [PrescriptionStatus.Cancelled]: "bg-error-50 text-error-700 border-error-200",
-  [PrescriptionStatus.Expired]: "bg-warning-50 text-warning-700 border-warning-200",
+const PRESCRIPTION_VARIANTS: Record<PrescriptionStatus, BadgeProps["variant"]> = {
+  [PrescriptionStatus.Active]: "info-bordered",
+  [PrescriptionStatus.Filled]: "success-bordered",
+  [PrescriptionStatus.Completed]: "neutral-bordered",
+  [PrescriptionStatus.Cancelled]: "error-bordered",
+  [PrescriptionStatus.Expired]: "warning-bordered",
 };
 
 export function PrescriptionStatusBadge({ status }: PrescriptionStatusBadgeProps) {
   return (
-    <span
-      className={clsxMerge(
-        "inline-flex items-center px-2.5 py-0.5",
-        "text-xs font-medium rounded-full border",
-        PRESCRIPTION_COLOR_STYLES[status]
-      )}
-    >
+    <Badge variant={PRESCRIPTION_VARIANTS[status]}>
       {status}
-    </span>
+    </Badge>
   );
 }
