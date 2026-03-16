@@ -150,7 +150,7 @@ public sealed class KnowledgeSeederService
     /// Splits text into overlapping chunks for embedding.
     /// Simple word-based chunking (token approximation).
     /// </summary>
-    private static List<string> ChunkText(string content, int chunkSize, int chunkOverlap)
+    internal static List<string> ChunkText(string content, int chunkSize, int chunkOverlap)
     {
         var chunks = new List<string>();
         var words = content.Split([' ', '\n', '\r', '\t'], StringSplitOptions.RemoveEmptyEntries);
@@ -181,7 +181,7 @@ public sealed class KnowledgeSeederService
     /// <summary>
     /// Extracts category from filename prefix (CDC-, AHA-, WHO-, etc.).
     /// </summary>
-    private static string? ExtractCategory(string fileName)
+    internal static string? ExtractCategory(string fileName)
     {
         var prefixes = new[] { "CDC", "AHA", "WHO", "NICE", "FDA" };
         

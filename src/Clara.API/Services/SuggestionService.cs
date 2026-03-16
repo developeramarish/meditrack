@@ -186,7 +186,7 @@ public sealed class SuggestionService
         }
     }
 
-    private static string BuildPrompt(
+    internal static string BuildPrompt(
         string conversationText,
         string knowledgeContext,
         PatientContext? patientContext,
@@ -271,7 +271,7 @@ public sealed class SuggestionService
             }
 
             // Parse JSON response
-            var result = ParseLlmResponse(responseText);
+            var result = ParseLlmResponse(responseText, _logger);
             return result;
         }
         catch (Exception exception)
@@ -281,7 +281,7 @@ public sealed class SuggestionService
         }
     }
 
-    private SuggestionLlmResponse? ParseLlmResponse(string responseText)
+    internal static SuggestionLlmResponse? ParseLlmResponse(string responseText, ILogger logger)
     {
         try
         {
@@ -291,7 +291,7 @@ public sealed class SuggestionService
 
             if (jsonStart == -1 || jsonEnd == -1 || jsonEnd <= jsonStart)
             {
-                _logger.LogWarning("No valid JSON found in LLM response: {Response}", responseText);
+                logger.LogWarning("No valid JSON found in LLM response (length: {Length})", responseText.Length);
                 return null;
             }
 
@@ -300,7 +300,7 @@ public sealed class SuggestionService
 
             if (result?.Suggestions == null || result.Suggestions.Count == 0)
             {
-                _logger.LogWarning("Parsed JSON has no suggestions: {Json}", jsonText);
+                logger.LogWarning("Parsed JSON has no suggestions (length: {Length})", jsonText.Length);
                 return null;
             }
 
@@ -320,7 +320,7 @@ public sealed class SuggestionService
         }
         catch (JsonException exception)
         {
-            _logger.LogWarning(exception, "Failed to parse LLM response as JSON: {Response}", responseText);
+            logger.LogWarning(exception, "Failed to parse LLM response as JSON (length: {Length})", responseText.Length);
             return null;
         }
     }
