@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Clara.API.Data;
 using Clara.API.Domain;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +27,15 @@ public sealed class SuggestionService
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true
     };
+
+    private static readonly string[] ValidTypes = ["clinical", "medication", "follow_up", "differential"];
+    private static readonly string[] ValidUrgencies = ["low", "medium", "high"];
+
+    private static string StripHtmlTags(string input)
+    {
+        if (string.IsNullOrEmpty(input)) return input;
+        return Regex.Replace(input, "<[^>]+>", "");
+    }
 
     public SuggestionService(
         IChatClient chatClient,
@@ -194,8 +204,9 @@ public sealed class SuggestionService
     {
         var parts = new List<string>
         {
-            "## Current Conversation",
-            conversationText
+            "## Current Conversation\n<TRANSCRIPT>",
+            conversationText,
+            "</TRANSCRIPT>"
         };
 
         if (!string.IsNullOrWhiteSpace(knowledgeContext))
@@ -208,7 +219,9 @@ public sealed class SuggestionService
             var patientSection = patientContext.ToPromptSection();
             if (!string.IsNullOrWhiteSpace(patientSection))
             {
+                parts.Add("<PATIENT_CONTEXT>");
                 parts.Add(patientSection);
+                parts.Add("</PATIENT_CONTEXT>");
             }
         }
 
@@ -304,12 +317,26 @@ public sealed class SuggestionService
                 return null;
             }
 
-            // Validate suggestions
+            // Validate and sanitize suggestions
             foreach (var suggestion in result.Suggestions)
             {
-                // Sanitize and default values
-                suggestion.Type = string.IsNullOrWhiteSpace(suggestion.Type) ? "clinical" : suggestion.Type;
-                suggestion.Urgency = string.IsNullOrWhiteSpace(suggestion.Urgency) ? "medium" : suggestion.Urgency;
+                // Strip HTML tags (XSS prevention — OWASP A05:2025)
+                suggestion.Content = StripHtmlTags(suggestion.Content);
+
+                // Truncate content to reasonable length
+                if (suggestion.Content.Length > 1000)
+                    suggestion.Content = suggestion.Content[..1000];
+
+                // Whitelist type values
+                suggestion.Type = ValidTypes.Contains(suggestion.Type, StringComparer.OrdinalIgnoreCase)
+                    ? suggestion.Type
+                    : "clinical";
+
+                // Whitelist urgency values
+                suggestion.Urgency = ValidUrgencies.Contains(suggestion.Urgency, StringComparer.OrdinalIgnoreCase)
+                    ? suggestion.Urgency
+                    : "medium";
+
                 suggestion.Confidence = suggestion.Confidence is < 0 or > 1 ? 0.5f : suggestion.Confidence;
             }
 

@@ -114,6 +114,9 @@ builder.Services.AddSignalR();
 
 WebApplication app = builder.Build();
 
+// Validate critical config in production (OWASP A02:2025 — Security Misconfiguration)
+ConfigValidator.ValidateProductionConfig(builder.Configuration, app.Environment);
+
 // Apply database migrations on startup
 using (IServiceScope scope = app.Services.CreateScope())
 {

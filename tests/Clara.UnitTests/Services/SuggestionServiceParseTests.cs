@@ -149,4 +149,60 @@ public sealed class SuggestionServiceParseTests
         var result = SuggestionService.ParseLlmResponse("{ invalid json }", Logger);
         result.Should().BeNull();
     }
+
+    [Fact]
+    public void ParseLlmResponse_WithHtmlInContent_ShouldStripHtmlTags()
+    {
+        var json = """
+        {
+            "suggestions": [
+                {
+                    "content": "Check BP <script>alert('xss')</script> immediately",
+                    "type": "clinical",
+                    "urgency": "high",
+                    "confidence": 0.9
+                }
+            ]
+        }
+        """;
+
+        var result = SuggestionService.ParseLlmResponse(json, Logger);
+
+        result.Should().NotBeNull();
+        result!.Suggestions[0].Content.Should().NotContain("<script>");
+        result.Suggestions[0].Content.Should().NotContain("</script>");
+    }
+
+    [Fact]
+    public void ParseLlmResponse_WithExcessiveContentLength_ShouldTruncate()
+    {
+        var longContent = new string('a', 2000);
+        var json = $$"""
+        {
+            "suggestions": [
+                {
+                    "content": "{{longContent}}",
+                    "type": "clinical",
+                    "urgency": "medium",
+                    "confidence": 0.7
+                }
+            ]
+        }
+        """;
+
+        var result = SuggestionService.ParseLlmResponse(json, Logger);
+
+        result.Should().NotBeNull();
+        result!.Suggestions[0].Content.Length.Should().BeLessThanOrEqualTo(1000);
+    }
+
+    [Fact]
+    public void ParseLlmResponse_WithInvalidType_ShouldDefaultToClinical()
+    {
+        var json = """{ "suggestions": [{ "content": "Valid", "type": "malicious_type; DROP TABLE", "urgency": "medium", "confidence": 0.7 }] }""";
+
+        var result = SuggestionService.ParseLlmResponse(json, Logger);
+
+        result!.Suggestions[0].Type.Should().Be("clinical");
+    }
 }

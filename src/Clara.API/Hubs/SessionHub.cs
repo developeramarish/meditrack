@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Clara.API.Application.Models;
 using Clara.API.Data;
 using Clara.API.Domain;
@@ -36,12 +37,41 @@ public sealed class SessionHub : Hub
         _logger = logger;
     }
 
+    private string GetDoctorId()
+    {
+        return Context.User?.FindFirst(JwtClaims.Subject)?.Value
+            ?? throw new HubException("Unauthorized: missing user identity");
+    }
+
+    private async Task ValidateSessionOwnershipAsync(Guid sessionId, string doctorId)
+    {
+        var isOwner = await _db.Sessions
+            .AnyAsync(s => s.Id == sessionId && s.DoctorId == doctorId);
+
+        if (!isOwner)
+        {
+            _logger.LogWarning(
+                "Session ownership violation: doctor attempted to access session {SessionId}",
+                sessionId);
+            throw new HubException("Session not found or access denied");
+        }
+    }
+
     /// <summary>
     /// Client joins a session group to receive real-time updates.
     /// Immediately broadcasts current session state so the client's useSession() hook is populated.
     /// </summary>
     public async Task JoinSession(string sessionId)
     {
+        var doctorId = GetDoctorId();
+
+        if (!Guid.TryParse(sessionId, out var sessionGuid))
+        {
+            return;
+        }
+
+        await ValidateSessionOwnershipAsync(sessionGuid, doctorId);
+
         await Groups.AddToGroupAsync(Context.ConnectionId, sessionId);
 
         _logger.LogInformation(
@@ -51,15 +81,10 @@ public sealed class SessionHub : Hub
         await Clients.Caller.SendAsync(SignalREvents.SessionJoined, sessionId);
 
         // Hydrate the caller with current session state so useSession() receives non-null data
-        if (!Guid.TryParse(sessionId, out var sessionGuid))
-        {
-            return;
-        }
-
         var session = await _db.Sessions
             .Include(s => s.TranscriptLines.OrderBy(t => t.Timestamp))
             .Include(s => s.Suggestions.OrderByDescending(s => s.TriggeredAt))
-            .FirstOrDefaultAsync(s => s.Id == sessionGuid);
+            .FirstOrDefaultAsync(s => s.Id == sessionGuid && s.DoctorId == doctorId);
 
         if (session is null)
         {
@@ -122,15 +147,31 @@ public sealed class SessionHub : Hub
     /// </summary>
     public async Task SendTranscriptLine(string sessionId, string speaker, string text)
     {
-        if (string.IsNullOrWhiteSpace(text))
+        var doctorId = GetDoctorId();
+
+        if (!Guid.TryParse(sessionId, out var sessionGuid))
         {
+            return;
+        }
+
+        await ValidateSessionOwnershipAsync(sessionGuid, doctorId);
+
+        if (!SessionHubValidation.IsValidSpeaker(speaker))
+        {
+            _logger.LogWarning("Invalid speaker role rejected");
+            return;
+        }
+
+        if (!SessionHubValidation.IsValidTranscriptText(text))
+        {
+            _logger.LogWarning("Transcript text rejected (empty or exceeds limit)");
             return;
         }
 
         var line = new TranscriptLine
         {
             Id = Guid.NewGuid(),
-            SessionId = Guid.Parse(sessionId),
+            SessionId = sessionGuid,
             Speaker = speaker,
             Text = text.Trim(),
             Timestamp = DateTimeOffset.UtcNow
@@ -154,12 +195,28 @@ public sealed class SessionHub : Hub
     {
         try
         {
+            var doctorId = GetDoctorId();
+
+            if (!Guid.TryParse(sessionId, out var sessionGuid))
+            {
+                return;
+            }
+
+            await ValidateSessionOwnershipAsync(sessionGuid, doctorId);
+
             if (string.IsNullOrWhiteSpace(audioBase64))
             {
                 return;
             }
 
             var audioBytes = Convert.FromBase64String(audioBase64);
+
+            if (!SessionHubValidation.IsValidAudioChunkSize(audioBytes.Length))
+            {
+                _logger.LogWarning("Audio chunk rejected ({Size} bytes)", audioBytes.Length);
+                await Clients.Caller.SendAsync(SignalREvents.SttError, "Audio chunk too large");
+                return;
+            }
 
             // Forward to Deepgram REST API
             var result = await _deepgram.TranscribeAsync(sessionId, audioBytes);
@@ -171,12 +228,12 @@ public sealed class SessionHub : Hub
             }
 
             // Infer speaker based on session context (async to avoid thread-pool starvation)
-            var speaker = await _speakerDetection.InferSpeakerAsync(Guid.Parse(sessionId));
+            var speaker = await _speakerDetection.InferSpeakerAsync(sessionGuid);
 
             var line = new TranscriptLine
             {
                 Id = Guid.NewGuid(),
-                SessionId = Guid.Parse(sessionId),
+                SessionId = sessionGuid,
                 Speaker = speaker,
                 Text = result.Transcript,
                 Timestamp = DateTimeOffset.UtcNow,

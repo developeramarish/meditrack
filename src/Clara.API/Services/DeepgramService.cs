@@ -62,10 +62,9 @@ public sealed class DeepgramService
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await response.Content.ReadAsStringAsync(cancellationToken);
                 _logger.LogWarning(
-                    "Deepgram returned {StatusCode} for session {SessionId}: {ErrorBody}",
-                    response.StatusCode, sessionId, errorBody);
+                    "Deepgram returned {StatusCode} for session {SessionId}",
+                    response.StatusCode, sessionId);
                 return null;
             }
 
