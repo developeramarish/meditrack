@@ -6,6 +6,23 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 ## [Unreleased]
 
 ### Added
+- Clara.UnitTests: 106 unit tests covering validators, domain, services, and security (2026-03-17)
+  - Validators: StartSessionRequest, KnowledgeSearchRequest
+  - Domain: PatientContext.ToPromptSection
+  - Services: SuggestionService (BuildPrompt, ParseLlmResponse), KnowledgeSeederService (ChunkText, ExtractCategory), SkillLoaderService, DeepgramService, PatientContextService, BatchTriggerService
+  - Security: SessionHub input validation, ConfigValidator
+  - Shared: MockHttpMessageHandler test infrastructure
+
+### Security
+- SessionHub: session ownership validation on all methods — OWASP A01:2025 IDOR prevention (2026-03-17)
+- PHI removed from all log statements — HIPAA compliance (2026-03-17)
+- Prompt injection defense: XML delimiters for user content in LLM prompts (2026-03-17)
+- LLM response sanitization: HTML stripping, content truncation, type/urgency whitelisting (2026-03-17)
+- SignalR input validation: speaker whitelist, text length limit, audio size limit (2026-03-17)
+- Startup config validation: reject placeholder API keys in production (2026-03-17)
+- All OWASP references updated to Top 10:2025 (2026-03-17)
+
+### Added
 - Competitive analysis & improvement specs — feature gaps, Clara enhancements, UI/UX roadmap (2026-03-15)
 - TDD infrastructure — Clara.UnitTests + MedicalRecords.UnitTests projects, NSubstitute + Testcontainers packages (2026-03-15)
 - Superpowers plugin integration — workflow section in CLAUDE.md, output directories, .gitignore entries (2026-03-15)
