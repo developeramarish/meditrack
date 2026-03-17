@@ -23,19 +23,19 @@ const techBadges = [
 const categoryColors: Record<string, string> = {
   frontend: "border-primary-200 bg-primary-50 text-primary-700",
   backend: "border-secondary-200 bg-secondary-50 text-secondary-700",
-  infra: "border-neutral-200 bg-neutral-100 text-neutral-700",
+  infra: "border-border bg-muted text-foreground/80",
   ai: "border-accent-200 bg-accent-50 text-accent-700",
 };
 
 export function TechStackSection() {
   return (
-    <section id="tech-stack" className="bg-neutral-50 py-10 md:py-16">
+    <section id="tech-stack" className="bg-muted py-10 md:py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-neutral-900 sm:text-4xl">
+          <h2 className="text-3xl font-bold text-foreground sm:text-4xl">
             Built with modern tech
           </h2>
-          <p className="mt-4 text-lg text-neutral-600">
+          <p className="mt-4 text-lg text-muted-foreground">
             Enterprise-grade stack — microservices, clean architecture, and AI-native design.
           </p>
         </div>
@@ -59,12 +59,12 @@ export function TechStackSection() {
           {[
             { label: "Frontend", color: "bg-primary-200" },
             { label: "Backend", color: "bg-secondary-200" },
-            { label: "Infrastructure", color: "bg-neutral-300" },
+            { label: "Infrastructure", color: "bg-muted-foreground/50" },
             { label: "AI", color: "bg-accent-200" },
           ].map((item) => (
             <div key={item.label} className="flex items-center gap-2">
               <div className={clsxMerge("h-2.5 w-2.5 rounded-full", item.color)} />
-              <span className="text-xs text-neutral-500">{item.label}</span>
+              <span className="text-xs text-muted-foreground">{item.label}</span>
             </div>
           ))}
         </div>
@@ -75,8 +75,8 @@ export function TechStackSection() {
             target="_blank"
             rel="noopener noreferrer"
             className={clsxMerge(
-              "inline-flex h-10 items-center gap-2 rounded-xl border border-neutral-200 px-6",
-              "text-sm font-semibold text-neutral-700 transition-colors hover:bg-white hover:shadow-sm"
+              "inline-flex h-10 items-center gap-2 rounded-xl border border-border px-6",
+              "text-sm font-semibold text-foreground/80 transition-colors hover:bg-card hover:shadow-sm"
             )}
           >
             <GitHubIcon className="h-4 w-4" />

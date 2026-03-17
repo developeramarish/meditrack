@@ -47,7 +47,7 @@ export function StickyLandingCta() {
           isVisible ? "translate-y-0" : "translate-y-full"
         )}
       >
-        <div className="flex items-center gap-3 border-t border-accent-200 bg-white/95 px-4 py-3 backdrop-blur-sm shadow-lg">
+        <div className="flex items-center gap-3 border-t border-accent-200 bg-card/95 px-4 py-3 backdrop-blur-sm shadow-lg">
           <a
             href="#clara-demo"
             className={clsxMerge(
@@ -61,7 +61,7 @@ export function StickyLandingCta() {
           </a>
           <button
             onClick={handleDismiss}
-            className="rounded-lg p-2 text-neutral-400 hover:text-neutral-600"
+            className="rounded-lg p-2 text-muted-foreground/70 hover:text-muted-foreground"
             aria-label="Dismiss"
           >
             <X className="h-5 w-5" />
@@ -77,7 +77,7 @@ export function StickyLandingCta() {
           isVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0 pointer-events-none"
         )}
       >
-        <div className="flex items-center gap-2 rounded-full border border-accent-200 bg-white/95 py-2 pl-4 pr-2 shadow-lg backdrop-blur-sm">
+        <div className="flex items-center gap-2 rounded-full border border-accent-200 bg-card/95 py-2 pl-4 pr-2 shadow-lg backdrop-blur-sm">
           <a
             href="#clara-demo"
             className="flex items-center gap-2 text-sm font-semibold text-accent-700 hover:text-accent-800"
@@ -87,7 +87,7 @@ export function StickyLandingCta() {
           </a>
           <button
             onClick={handleDismiss}
-            className="rounded-full p-1 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600"
+            className="rounded-full p-1 text-muted-foreground/70 hover:bg-muted hover:text-muted-foreground"
             aria-label="Dismiss"
           >
             <X className="h-4 w-4" />
