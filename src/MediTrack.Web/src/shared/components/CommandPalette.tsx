@@ -75,7 +75,7 @@ export function CommandPalette() {
               value={item.label}
               onSelect={() => handleSelect(item.path)}
             >
-              <item.icon className="mr-2 h-4 w-4 text-neutral-500" />
+              <item.icon className="mr-2 h-4 w-4 text-muted-foreground" />
               <span>{item.label}</span>
             </CommandItem>
           ))}
@@ -90,7 +90,7 @@ export function CommandPalette() {
               value={item.label}
               onSelect={() => handleSelect(item.path)}
             >
-              <item.icon className="mr-2 h-4 w-4 text-neutral-500" />
+              <item.icon className="mr-2 h-4 w-4 text-muted-foreground" />
               <span>{item.label}</span>
               {item.shortcut && <CommandShortcut>⌘{item.shortcut}</CommandShortcut>}
             </CommandItem>

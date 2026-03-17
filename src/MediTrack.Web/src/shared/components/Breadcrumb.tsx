@@ -20,13 +20,13 @@ export function Breadcrumb({ items }: BreadcrumbProps) {
           return (
             <li key={item.label} className="flex items-center gap-1.5">
               {index > 0 && (
-                <ChevronRight className="h-3.5 w-3.5 flex-shrink-0 text-neutral-400" />
+                <ChevronRight className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground/70" />
               )}
               {item.href && !isLast ? (
                 <Link
                   to={item.href}
                   className={clsxMerge(
-                    "text-neutral-500 transition-colors hover:text-neutral-700"
+                    "text-muted-foreground transition-colors hover:text-foreground/80"
                   )}
                 >
                   {item.label}
@@ -35,8 +35,8 @@ export function Breadcrumb({ items }: BreadcrumbProps) {
                 <span
                   className={clsxMerge(
                     isLast
-                      ? "font-medium text-neutral-900"
-                      : "text-neutral-500"
+                      ? "font-medium text-foreground"
+                      : "text-muted-foreground"
                   )}
                 >
                   {item.label}
