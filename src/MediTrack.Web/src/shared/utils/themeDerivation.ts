@@ -6,7 +6,7 @@
  *
  * Usage:
  *   const theme = deriveTheme({ background: '#03045E', foreground: '#CAF0F8', ... });
- *   applyTheme(theme);  // Sets CSS variables on <html>
+ *   // Returns 25+ CSS variables as { '--background': '239 94% 19%', ... }
  *
  * Or from a Coolors URL:
  *   const theme = themeFromCoolorsUrl('https://coolors.co/palette/03045e-0077b6-00b4d8-90e0ef-caf0f8');
@@ -110,52 +110,71 @@ function contrastForeground(hex: string): string {
   return isDark(hex) ? '0 0% 100%' : '222 47% 11%';
 }
 
+// ── Derivation Helpers ────────────────────────────────────────────
+
+/** Pre-computed HSL for a hex color — avoids redundant parsing */
+interface ParsedColor {
+  readonly hex: string;
+  readonly hsl: string;        // CSS-ready "H S% L%"
+  readonly h: number;
+  readonly s: number;
+  readonly l: number;
+}
+
+function parseHex(hex: string): ParsedColor {
+  const [r, g, b] = hexToRgb(hex);
+  const [h, s, l] = rgbToHsl(r, g, b);
+  return { hex, hsl: `${h} ${s}% ${l}%`, h, s, l };
+}
+
+/** Dimmed foreground with WCAG AA clamp (~4.5:1 against card surface) */
+function deriveDimmedForeground(fg: ParsedColor, isBackgroundDark: boolean): string {
+  const newS = Math.max(0, Math.min(100, fg.s * 0.7));
+  const newL = isBackgroundDark
+    ? Math.max(58, fg.l - 34)   // never drop below 58% on dark backgrounds
+    : Math.min(52, fg.l + 20);  // never rise above 52% on light backgrounds
+  return `${fg.h} ${newS}% ${newL}%`;
+}
+
 // ── Derivation Engine ────────────────────────────────────────────
 
 /**
  * Derive a complete theme from 5 brand colors.
  *
- * The derivation rules:
- * - Card = background + slight lightness lift
- * - Popover = background + more lightness lift
- * - Muted = background + lift + desaturated
- * - Muted-foreground = foreground dimmed to ~60%
- * - Border = background + moderate lightness lift
- * - Sidebar = background + slight darkening
- * - Foreground pairs auto-calculated via contrast
+ * Pre-computes HSL for each input color once, then references the cached
+ * values throughout — eliminates ~30 redundant hex→RGB→HSL conversions.
  */
 export function deriveTheme(input: PaletteInput): DerivedTheme {
+  // Pre-compute all input colors once
+  const bg = parseHex(input.background);
+  const fg = parseHex(input.foreground);
+  const pri = parseHex(input.primary);
+  const sec = parseHex(input.secondary);
+  const acc = parseHex(input.accent);
+
   const isBackgroundDark = isDark(input.background);
   const lift = isBackgroundDark ? 4 : -4;
+  const dimmedFg = deriveDimmedForeground(fg, isBackgroundDark);
 
   return {
     // ── Layout ──
-    '--background': hexToHslString(input.background),
-    '--foreground': hexToHslString(input.foreground),
+    '--background': bg.hsl,
+    '--foreground': fg.hsl,
 
     // ── Surfaces (derived from background) ──
     '--card': adjustLightness(input.background, lift),
-    '--card-foreground': hexToHslString(input.foreground),
+    '--card-foreground': fg.hsl,
     '--popover': adjustLightness(input.background, lift * 1.5),
-    '--popover-foreground': hexToHslString(input.foreground),
+    '--popover-foreground': fg.hsl,
     '--muted': adjustSaturation(input.background, 0.6, lift * 2),
-    '--muted-foreground': (() => {
-      const [r, g, b] = hexToRgb(input.foreground);
-      const [h, s, l] = rgbToHsl(r, g, b);
-      const newS = Math.max(0, Math.min(100, s * 0.7));
-      // Clamp to ensure WCAG AA compliance (~4.5:1 against card surface)
-      const newL = isBackgroundDark
-        ? Math.max(58, l - 34)   // never drop below 58% on dark backgrounds
-        : Math.min(52, l + 20);  // never rise above 52% on light backgrounds
-      return `${h} ${newS}% ${newL}%`;
-    })(),
+    '--muted-foreground': dimmedFg,
 
     // ── Brand colors ──
-    '--primary': hexToHslString(input.primary),
+    '--primary': pri.hsl,
     '--primary-foreground': contrastForeground(input.primary),
-    '--secondary': hexToHslString(input.secondary),
+    '--secondary': sec.hsl,
     '--secondary-foreground': contrastForeground(input.secondary),
-    '--accent': hexToHslString(input.accent),
+    '--accent': acc.hsl,
     '--accent-foreground': contrastForeground(input.accent),
 
     // ── Utility (derived from background) ──
@@ -165,22 +184,22 @@ export function deriveTheme(input: PaletteInput): DerivedTheme {
     '--destructive-foreground': '0 0% 100%',
     '--border': adjustLightness(input.background, lift * 3),
     '--input': adjustLightness(input.background, lift * 2.5),
-    '--ring': hexToHslString(input.primary),
+    '--ring': pri.hsl,
 
     // ── Sidebar (darker than background) ──
     '--sidebar-background': adjustLightness(input.background, -lift),
     '--sidebar-foreground': adjustSaturation(input.foreground, 0.8, isBackgroundDark ? -18 : 10),
-    '--sidebar-primary': hexToHslString(input.primary),
+    '--sidebar-primary': pri.hsl,
     '--sidebar-primary-foreground': contrastForeground(input.primary),
     '--sidebar-accent': adjustLightness(input.background, lift),
-    '--sidebar-accent-foreground': hexToHslString(input.foreground),
+    '--sidebar-accent-foreground': fg.hsl,
     '--sidebar-border': adjustLightness(input.background, lift * 1.5),
-    '--sidebar-ring': hexToHslString(input.primary),
+    '--sidebar-ring': pri.hsl,
 
     // ── Chart ──
     '--chart-surface': adjustLightness(input.background, lift),
     '--chart-grid': adjustLightness(input.background, lift * 3),
-    '--chart-text': adjustSaturation(input.foreground, 0.7, isBackgroundDark ? -34 : 20),
+    '--chart-text': dimmedFg,
     '--chart-tooltip-border': adjustLightness(input.background, lift * 4),
     '--chart-tooltip-shadow': isBackgroundDark
       ? '228 80% 5% / 0.5'
@@ -239,7 +258,6 @@ export function autoAssignRoles(hexColors: string[]): PaletteInput {
  *
  * @example
  * const theme = themeFromCoolorsUrl('https://coolors.co/palette/03045e-0077b6-00b4d8-90e0ef-caf0f8');
- * applyTheme('ocean-breeze', theme);
  */
 export function themeFromCoolorsUrl(url: string): DerivedTheme {
   const colors = parseCoolorsUrl(url);
@@ -248,34 +266,3 @@ export function themeFromCoolorsUrl(url: string): DerivedTheme {
   return deriveTheme(roles);
 }
 
-// ── Theme Application ────────────────────────────────────────────
-
-/**
- * Apply a derived theme as a CSS class on <html>.
- * Injects a <style> block with the variable definitions.
- */
-export function applyTheme(themeName: string, theme: DerivedTheme): void {
-  if (typeof document === 'undefined') return; // SSR-safe guard
-  const className = `theme-${themeName}`;
-  const cssVars = Object.entries(theme)
-    .map(([key, value]) => `  ${key}: ${value};`)
-    .join('\n');
-
-  const css = `.${className} {\n${cssVars}\n}`;
-
-  // Remove previous injection if any
-  const existingStyle = document.getElementById(`theme-${themeName}-vars`);
-  if (existingStyle) existingStyle.remove();
-
-  // Inject new style
-  const style = document.createElement('style');
-  style.id = `theme-${themeName}-vars`;
-  style.textContent = css;
-  document.head.appendChild(style);
-
-  // Apply class to html
-  const root = document.documentElement;
-  // Remove other theme-* classes
-  root.className = root.className.replace(/\btheme-[\w-]+\b/g, '').trim();
-  root.classList.add(className);
-}

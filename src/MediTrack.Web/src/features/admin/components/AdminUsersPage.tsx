@@ -628,8 +628,8 @@ export function AdminUsersPage() {
                     <tr
                       key={user.id}
                       className={clsxMerge(
-                        "transition-colors hover:bg-muted",
-                        !is2faEnabled && "bg-warning-50/40 dark:bg-warning-900/10"
+                        "transition-colors hover:bg-muted/50",
+                        !is2faEnabled && "border-l-2 border-l-warning-400"
                       )}
                     >
                       <td className="px-5 py-3">
@@ -740,7 +740,7 @@ export function AdminUsersPage() {
                   key={user.id}
                   className={clsxMerge(
                     "rounded-lg border border-border bg-card p-4 shadow-sm",
-                    !is2faEnabled && "border-warning-200 dark:border-warning-700 bg-warning-50/30 dark:bg-warning-900/10"
+                    !is2faEnabled && "border-l-2 border-l-warning-400"
                   )}
                 >
                   <div className="flex items-start gap-3">

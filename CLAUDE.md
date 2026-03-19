@@ -64,6 +64,12 @@ When the user says these terms, go directly to the right location — no searchi
 | **outbox** | Integration event log (outbox pattern) | `src/IntegrationEventLogEF/` |
 | **notification** | Background notification worker | `src/Notification.Worker/` |
 | **simulator** | Test data seeder | `src/MediTrack.Simulator/` |
+| **theme** | Theme system (switcher, derivation, config) | See Theme File Map below |
+| **theme config** | Centralized color palette definitions | `design/src/shared/config/color-themes.ts` |
+| **theme engine** | Derivation: 5 hex → 25+ CSS vars | `src/MediTrack.Web/src/shared/utils/themeDerivation.ts` |
+| **theme switcher** | UI: palette picker popover | `design/src/components/ThemeSwitcher.tsx` |
+| **theme hook** | Runtime: `<style>` injection + localStorage | `design/src/hooks/use-color-theme.ts` |
+| **tokens** | CSS variables (:root / .dark) | `src/MediTrack.Web/src/index.css` + `design/src/index.css` |
 
 ## Service Map
 
@@ -103,6 +109,39 @@ dotnet test --filter "FullyQualifiedName~UnitTests"  # Unit tests only (no infra
 
 - `clsxMerge` — `import { clsxMerge } from "@/shared/utils/clsxMerge"`
 - Path alias: `@/` → `src/`
+
+## Theme Workflow (SOLID — Open/Closed)
+
+**New tenant palette = add one object to `color-themes.ts`. No CSS, no manual HSL, no other files.**
+
+### Architecture
+```
+color-themes.ts (config: palette + metadata)
+  → themeDerivation.ts (5 hex → 25+ CSS vars, cached)
+    → use-color-theme.ts (<style> injection at runtime)
+      → ThemeSwitcher.tsx (UI popover)
+```
+
+### Theme File Map
+
+| File | Project | Purpose |
+|------|---------|---------|
+| `shared/config/color-themes.ts` | Design | Single source of truth — palette definitions |
+| `shared/utils/themeDerivation.ts` | Both | Derivation engine (5 colors → 25+ HSL vars) |
+| `hooks/use-color-theme.ts` | Design | Runtime `<style>` injection + localStorage |
+| `hooks/use-theme.ts` | Both | Light/dark/system mode toggle |
+| `components/ThemeSwitcher.tsx` | Design | Popover from sidebar palette icon |
+| `components/AppShell.tsx` | Design | `SidebarThemeButton` + mobile "Theme" tab |
+| `index.css` | Both | `:root` (light) + `.dark` (hand-tuned Deep Ocean) |
+| `tailwind.config.ts` | Both | CSS var → Tailwind bridge + healing palette |
+| `docs/theming-guide.md` | — | Developer reference |
+
+### Rules
+- **Semantic tokens only** in components — see `.claude/rules/frontend.md` Color Tokens
+- **Dual-update**: `index.css` + `tailwind.config.ts` + `themeDerivation.ts` must sync Web ↔ Design
+- **No background tints** for row states — use `border-l-2 border-l-{color}` indicators instead
+- **Inputs** must have explicit `bg-input text-foreground` (avoid inheriting transparent bg)
+- Selection is **mutually exclusive**: Light/Dark/System OR a color palette, never both
 
 ---
 
