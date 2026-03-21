@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Clara.API.Data;
 using Clara.API.Domain;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +12,7 @@ namespace Clara.API.Services;
 /// Generates AI suggestions using LLM with RAG context and patient information.
 /// Uses IChatClient (Microsoft.Extensions.AI) for LLM-agnostic integration.
 /// </summary>
-public sealed class SuggestionService
+public sealed partial class SuggestionService
 {
     private readonly IChatClient _chatClient;
     private readonly ClaraDbContext _db;
@@ -26,6 +27,15 @@ public sealed class SuggestionService
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true
     };
+
+    [GeneratedRegex("<[^>]+>")]
+    private static partial Regex HtmlTagPattern();
+
+    private static string StripHtmlTags(string input)
+    {
+        if (string.IsNullOrEmpty(input)) return input;
+        return HtmlTagPattern().Replace(input, "");
+    }
 
     public SuggestionService(
         IChatClient chatClient,
@@ -186,7 +196,7 @@ public sealed class SuggestionService
         }
     }
 
-    private static string BuildPrompt(
+    internal static string BuildPrompt(
         string conversationText,
         string knowledgeContext,
         PatientContext? patientContext,
@@ -194,8 +204,9 @@ public sealed class SuggestionService
     {
         var parts = new List<string>
         {
-            "## Current Conversation",
-            conversationText
+            "## Current Conversation\n<TRANSCRIPT>",
+            conversationText,
+            "</TRANSCRIPT>"
         };
 
         if (!string.IsNullOrWhiteSpace(knowledgeContext))
@@ -208,7 +219,9 @@ public sealed class SuggestionService
             var patientSection = patientContext.ToPromptSection();
             if (!string.IsNullOrWhiteSpace(patientSection))
             {
+                parts.Add("<PATIENT_CONTEXT>");
                 parts.Add(patientSection);
+                parts.Add("</PATIENT_CONTEXT>");
             }
         }
 
@@ -271,7 +284,7 @@ public sealed class SuggestionService
             }
 
             // Parse JSON response
-            var result = ParseLlmResponse(responseText);
+            var result = ParseLlmResponse(responseText, _logger);
             return result;
         }
         catch (Exception exception)
@@ -281,7 +294,7 @@ public sealed class SuggestionService
         }
     }
 
-    private SuggestionLlmResponse? ParseLlmResponse(string responseText)
+    internal static SuggestionLlmResponse? ParseLlmResponse(string responseText, ILogger logger)
     {
         try
         {
@@ -291,7 +304,7 @@ public sealed class SuggestionService
 
             if (jsonStart == -1 || jsonEnd == -1 || jsonEnd <= jsonStart)
             {
-                _logger.LogWarning("No valid JSON found in LLM response: {Response}", responseText);
+                logger.LogWarning("No valid JSON found in LLM response (length: {Length})", responseText.Length);
                 return null;
             }
 
@@ -300,16 +313,30 @@ public sealed class SuggestionService
 
             if (result?.Suggestions == null || result.Suggestions.Count == 0)
             {
-                _logger.LogWarning("Parsed JSON has no suggestions: {Json}", jsonText);
+                logger.LogWarning("Parsed JSON has no suggestions (length: {Length})", jsonText.Length);
                 return null;
             }
 
-            // Validate suggestions
+            // Validate and sanitize suggestions
             foreach (var suggestion in result.Suggestions)
             {
-                // Sanitize and default values
-                suggestion.Type = string.IsNullOrWhiteSpace(suggestion.Type) ? "clinical" : suggestion.Type;
-                suggestion.Urgency = string.IsNullOrWhiteSpace(suggestion.Urgency) ? "medium" : suggestion.Urgency;
+                // Strip HTML tags (XSS prevention — OWASP A05:2025)
+                suggestion.Content = StripHtmlTags(suggestion.Content ?? string.Empty);
+
+                // Truncate content to reasonable length
+                if (suggestion.Content.Length > 1000)
+                    suggestion.Content = suggestion.Content[..1000];
+
+                // Whitelist type values
+                suggestion.Type = SuggestionType.All.Contains(suggestion.Type, StringComparer.OrdinalIgnoreCase)
+                    ? suggestion.Type
+                    : SuggestionType.Clinical;
+
+                // Whitelist urgency values
+                suggestion.Urgency = SuggestionUrgency.All.Contains(suggestion.Urgency, StringComparer.OrdinalIgnoreCase)
+                    ? suggestion.Urgency
+                    : SuggestionUrgency.Medium;
+
                 suggestion.Confidence = suggestion.Confidence is < 0 or > 1 ? 0.5f : suggestion.Confidence;
             }
 
@@ -320,7 +347,7 @@ public sealed class SuggestionService
         }
         catch (JsonException exception)
         {
-            _logger.LogWarning(exception, "Failed to parse LLM response as JSON: {Response}", responseText);
+            logger.LogWarning(exception, "Failed to parse LLM response as JSON (length: {Length})", responseText.Length);
             return null;
         }
     }

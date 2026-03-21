@@ -102,7 +102,7 @@ export function ClaraMiniDemo() {
   return (
     <section
       id="clara-demo"
-      className="bg-gradient-to-b from-neutral-50 to-white py-16 md:py-24"
+      className="bg-gradient-to-b from-background to-card py-16 md:py-24"
     >
       <div ref={ref} className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="text-center">
@@ -110,10 +110,10 @@ export function ClaraMiniDemo() {
             <Sparkles className="h-3.5 w-3.5 text-accent-500" />
             <span className="text-xs font-semibold text-accent-700">Interactive Demo</span>
           </div>
-          <h2 className="text-3xl font-bold text-neutral-900 sm:text-4xl">
+          <h2 className="text-3xl font-bold text-foreground sm:text-4xl">
             See Clara in action
           </h2>
-          <p className="mt-4 text-lg text-neutral-600">
+          <p className="mt-4 text-lg text-muted-foreground">
             Watch how Clara transcribes a consultation and generates clinical notes in real time.
           </p>
         </div>
@@ -129,7 +129,7 @@ export function ClaraMiniDemo() {
                 "rounded-full px-4 py-2 text-sm font-medium transition-all duration-200",
                 promptIndex === activePromptIndex
                   ? "bg-accent-500 text-white shadow-md"
-                  : "border border-neutral-200 bg-white text-neutral-700 hover:border-accent-200 hover:bg-accent-50",
+                  : "border border-border bg-card text-foreground/80 hover:border-accent-200 hover:bg-accent-50",
                 isAnimating && "cursor-not-allowed opacity-50"
               )}
             >
@@ -141,12 +141,12 @@ export function ClaraMiniDemo() {
         {/* Demo Interface */}
         <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-2">
           {/* Left — Transcript */}
-          <div className="rounded-xl border border-neutral-200 bg-white shadow-sm">
+          <div className="rounded-xl border border-border bg-card shadow-sm">
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-neutral-100 px-5 py-3">
+            <div className="flex items-center justify-between border-b border-border px-5 py-3">
               <div className="flex items-center gap-2">
                 <Mic className="h-4 w-4 text-error-500" />
-                <span className="text-sm font-semibold text-neutral-900">Live Transcript</span>
+                <span className="text-sm font-semibold text-foreground">Live Transcript</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="h-2 w-2 rounded-full bg-error-500 animate-blink" />
@@ -173,7 +173,7 @@ export function ClaraMiniDemo() {
                     )}>
                       {isDoctor ? "Dr. Smith" : "Patient"}
                     </p>
-                    <p className="mt-1 text-sm text-neutral-700">{message.text}</p>
+                    <p className="mt-1 text-sm text-foreground/80">{message.text}</p>
                   </div>
                 );
               })}
@@ -193,10 +193,10 @@ export function ClaraMiniDemo() {
           <div className="space-y-4">
             {/* Suggestion Card */}
             <div className={clsxMerge(
-              "rounded-xl border bg-white shadow-sm transition-all duration-500",
+              "rounded-xl border bg-card shadow-sm transition-all duration-500",
               showSuggestion
                 ? "border-accent-200 opacity-100 translate-y-0"
-                : "border-neutral-200 opacity-0 translate-y-4"
+                : "border-border opacity-0 translate-y-4"
             )}>
               <div className="flex items-center gap-2 border-b border-accent-100 bg-accent-50 px-5 py-3 rounded-t-xl">
                 <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-accent-500 to-primary-700">
@@ -205,16 +205,16 @@ export function ClaraMiniDemo() {
                 <span className="text-sm font-semibold text-accent-700">Clara Suggestion</span>
               </div>
               <div className="p-5">
-                <p className="text-sm leading-relaxed text-neutral-700">{activePrompt.suggestion}</p>
+                <p className="text-sm leading-relaxed text-foreground/80">{activePrompt.suggestion}</p>
               </div>
             </div>
 
             {/* SOAP Note Preview */}
             <div className={clsxMerge(
-              "rounded-xl border bg-white shadow-sm transition-all duration-500",
+              "rounded-xl border bg-card shadow-sm transition-all duration-500",
               showSoap
                 ? "border-success-200 opacity-100 translate-y-0"
-                : "border-neutral-200 opacity-0 translate-y-4"
+                : "border-border opacity-0 translate-y-4"
             )}>
               <div className="flex items-center justify-between border-b border-success-100 bg-success-50 px-5 py-3 rounded-t-xl">
                 <div className="flex items-center gap-2">
@@ -223,7 +223,7 @@ export function ClaraMiniDemo() {
                 </div>
               </div>
               <div className="p-5">
-                <pre className="whitespace-pre-wrap font-mono text-xs leading-relaxed text-neutral-700">
+                <pre className="whitespace-pre-wrap font-mono text-xs leading-relaxed text-foreground/80">
                   {activePrompt.soapPreview}
                 </pre>
               </div>

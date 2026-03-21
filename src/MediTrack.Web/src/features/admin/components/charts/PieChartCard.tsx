@@ -7,7 +7,7 @@ import {
   Tooltip,
 } from "recharts";
 import { clsxMerge } from "@/shared/utils/clsxMerge";
-import { CHART_TOOLTIP_STYLE } from "@/shared/utils/chartColors";
+import { getChartTooltipStyle, getChartSurface } from "@/shared/utils/chartColors";
 
 interface PieChartDataItem {
   readonly name: string;
@@ -73,20 +73,20 @@ export function PieChartCard({
   return (
     <div
       className={clsxMerge(
-        "rounded-lg border border-neutral-200 bg-white p-5 shadow-sm",
+        "rounded-lg border border-border bg-card p-5 shadow-sm",
         className
       )}
     >
       <div className="mb-4">
-        <h3 className="text-sm font-semibold text-neutral-900">{title}</h3>
+        <h3 className="text-sm font-semibold text-foreground">{title}</h3>
         {description && (
-          <p className="mt-0.5 text-xs text-neutral-500">{description}</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>
         )}
       </div>
 
       {filteredData.length === 0 ? (
         <div className="flex items-center justify-center" style={{ height }}>
-          <p className="text-sm text-neutral-400">No data available</p>
+          <p className="text-sm text-muted-foreground/70">No data available</p>
         </div>
       ) : (
         <ResponsiveContainer width="100%" height={height}>
@@ -106,17 +106,13 @@ export function PieChartCard({
                 <Cell
                   key={`cell-${index}`}
                   fill={colors[index % colors.length]}
-                  stroke="white"
+                  stroke={getChartSurface()}
                   strokeWidth={2}
                 />
               ))}
             </Pie>
             <Tooltip
-              contentStyle={{
-                borderRadius: 8,
-                ...CHART_TOOLTIP_STYLE,
-                fontSize: 12,
-              }}
+              contentStyle={getChartTooltipStyle()}
             />
             {showLegend && (
               <Legend

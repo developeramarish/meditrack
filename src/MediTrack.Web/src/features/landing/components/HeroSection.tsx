@@ -7,11 +7,11 @@ import { clsxMerge } from "@/shared/utils/clsxMerge";
 
 export function HeroSection() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-neutral-50 to-white pb-10 pt-10 md:pb-16 md:pt-16">
+    <section className="relative overflow-hidden bg-gradient-to-b from-background to-card pb-10 pt-10 md:pb-16 md:pt-16">
       {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
-        <div className="absolute -right-40 -top-40 h-80 w-80 rounded-full bg-primary-50 opacity-50 blur-3xl" />
-        <div className="absolute -left-20 top-1/2 h-60 w-60 rounded-full bg-accent-50 opacity-40 blur-3xl" />
+        <div className="absolute -right-40 -top-40 h-80 w-80 rounded-full bg-primary-50 opacity-50 dark:opacity-[0.07] blur-3xl" />
+        <div className="absolute -left-20 top-1/2 h-60 w-60 rounded-full bg-accent-50 opacity-40 dark:opacity-[0.07] blur-3xl" />
       </div>
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -23,7 +23,7 @@ export function HeroSection() {
               <span className="text-xs font-semibold text-accent-700">AI-Powered Clinical Platform</span>
             </div>
 
-            <h1 className="text-4xl font-bold leading-tight tracking-tight text-neutral-900 sm:text-5xl lg:text-6xl">
+            <h1 className="text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl lg:text-6xl">
               Clara{" "}
               <span className="bg-gradient-to-r from-accent-700 to-primary-700 bg-clip-text text-transparent">
                 listens
@@ -31,11 +31,11 @@ export function HeroSection() {
               to your consults and writes the notes
             </h1>
 
-            <p className="mt-6 text-lg leading-relaxed text-neutral-600 sm:text-xl">
+            <p className="mt-6 text-lg leading-relaxed text-muted-foreground sm:text-xl">
               For doctors who spend more time on paperwork than patients.
               MediTrack&apos;s AI companion transcribes visits, suggests diagnoses, and
               generates SOAP notes — so you can{" "}
-              <strong className="text-neutral-900">focus on care, not clicks</strong>.
+              <strong className="text-foreground">focus on care, not clicks</strong>.
             </p>
 
             <div className="mt-3 inline-flex items-center gap-2 rounded-lg bg-success-50 px-3 py-1.5">
@@ -112,12 +112,12 @@ function HeroStats() {
   return (
     <div className="grid grid-cols-3 gap-3">
       {stats.map((stat) => (
-        <div key={stat.label} className="rounded-lg border border-neutral-100 p-3">
+        <div key={stat.label} className="rounded-lg border border-border p-3">
           <div className={clsxMerge("mb-1.5 flex h-8 w-8 items-center justify-center rounded-lg", stat.bg)}>
             <stat.icon className={clsxMerge("h-4 w-4", stat.color)} />
           </div>
-          <p className="text-lg font-bold text-neutral-900">{stat.value}</p>
-          <p className="text-xs text-neutral-500">{stat.label}</p>
+          <p className="text-lg font-bold text-foreground">{stat.value}</p>
+          <p className="text-xs text-muted-foreground">{stat.label}</p>
         </div>
       ))}
     </div>
@@ -130,12 +130,12 @@ function DashboardMockup() {
   return (
     <div className="relative">
       {/* Main dashboard card */}
-      <div className="animate-float rounded-xl border border-neutral-200 bg-white p-6 shadow-md">
+      <div className="animate-float rounded-xl border border-border bg-card p-6 shadow-md">
         {/* Header bar */}
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <LayoutDashboard className="h-5 w-5 text-primary-700" />
-            <span className="text-sm font-semibold text-neutral-900">Dashboard</span>
+            <span className="text-sm font-semibold text-foreground">Dashboard</span>
           </div>
           <div className="flex gap-1.5">
             <div className="h-2.5 w-2.5 rounded-full bg-error-400" />
@@ -153,10 +153,10 @@ function DashboardMockup() {
             { time: "9:00 AM", name: "Sarah Johnson", type: "Follow-up" },
             { time: "10:30 AM", name: "Michael Chen", type: "Consultation" },
           ].map((appointment) => (
-            <div key={appointment.time} className="flex items-center gap-3 rounded-lg bg-neutral-50 px-3 py-2">
-              <span className="w-16 text-xs font-mono font-medium text-neutral-600">{appointment.time}</span>
-              <div className="h-4 w-px bg-neutral-200" />
-              <span className="text-xs font-medium text-neutral-700">{appointment.name}</span>
+            <div key={appointment.time} className="flex items-center gap-3 rounded-lg bg-muted px-3 py-2">
+              <span className="w-16 text-xs font-mono font-medium text-muted-foreground">{appointment.time}</span>
+              <div className="h-4 w-px bg-border" />
+              <span className="text-xs font-medium text-foreground/80">{appointment.name}</span>
               <span className="ml-auto rounded-full bg-primary-100 px-2 py-0.5 text-[10px] font-medium text-primary-700">
                 {appointment.type}
               </span>
@@ -166,18 +166,18 @@ function DashboardMockup() {
       </div>
 
       {/* Floating Clara card */}
-      <div className="absolute -bottom-6 -left-8 w-56 rounded-xl border border-accent-200 bg-white p-4 shadow-md" style={{ animationDelay: "1s", animation: "float 4s ease-in-out infinite" }}>
+      <div className="absolute -bottom-6 -left-8 w-56 rounded-xl border border-accent-200 bg-card p-4 shadow-md" style={{ animationDelay: "1s", animation: "float 4s ease-in-out infinite" }}>
         <div className="mb-2 flex items-center gap-2">
           <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-accent-500 to-primary-700">
             <Sparkles className="h-3.5 w-3.5 text-white" />
           </div>
-          <span className="text-xs font-semibold text-neutral-900">Clara AI</span>
+          <span className="text-xs font-semibold text-foreground">Clara AI</span>
           <span className="ml-auto h-1.5 w-1.5 rounded-full bg-success-500" />
         </div>
         <div className="space-y-1.5">
           <div className="flex items-center gap-1.5">
             <Mic className="h-3 w-3 text-accent-500" />
-            <span className="text-[10px] text-neutral-600">Transcribing...</span>
+            <span className="text-[10px] text-muted-foreground">Transcribing...</span>
           </div>
           <div className="h-1.5 w-full overflow-hidden rounded-full bg-accent-100">
             <div className="h-full w-3/4 rounded-full bg-accent-500" />
@@ -186,15 +186,15 @@ function DashboardMockup() {
       </div>
 
       {/* Floating vitals card */}
-      <div className="absolute -right-4 -top-4 w-44 rounded-xl border border-neutral-200 bg-white p-3 shadow-md" style={{ animationDelay: "0.5s", animation: "float 3.5s ease-in-out infinite" }}>
+      <div className="absolute -right-4 -top-4 w-44 rounded-xl border border-border bg-card p-3 shadow-md" style={{ animationDelay: "0.5s", animation: "float 3.5s ease-in-out infinite" }}>
         <div className="mb-1.5 flex items-center gap-1.5">
           <Activity className="h-3.5 w-3.5 text-success-500" />
-          <span className="text-[10px] font-semibold text-neutral-700">Patient Vitals</span>
+          <span className="text-[10px] font-semibold text-foreground/80">Patient Vitals</span>
         </div>
         <div className="flex items-baseline gap-1">
           <Stethoscope className="h-3 w-3 text-primary-500" />
-          <span className="text-xs font-bold text-neutral-900">120/80</span>
-          <span className="text-[10px] text-neutral-500">mmHg</span>
+          <span className="text-xs font-bold text-foreground">120/80</span>
+          <span className="text-[10px] text-muted-foreground">mmHg</span>
         </div>
       </div>
     </div>

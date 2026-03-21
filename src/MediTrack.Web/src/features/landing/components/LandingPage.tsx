@@ -28,8 +28,8 @@ export function LandingPage() {
 
   if (auth.isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-neutral-50">
-        <p className="text-lg text-neutral-500">Loading...</p>
+      <div className="flex min-h-screen items-center justify-center bg-muted">
+        <p className="text-lg text-muted-foreground">Loading...</p>
       </div>
     );
   }
@@ -39,7 +39,7 @@ export function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-card">
       <LandingNav onSignIn={handleSignIn} />
       <HeroSection />
       <Suspense fallback={null}>

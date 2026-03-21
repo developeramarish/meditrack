@@ -75,6 +75,15 @@ public sealed class SkillLoaderService
     }
 
     /// <summary>
+    /// Adds a skill for testing purposes only. Exposed via InternalsVisibleTo.
+    /// </summary>
+    internal void AddSkillForTesting(ClinicalSkill skill)
+    {
+        _skills.Add(skill);
+        _skills.Sort((skillA, skillB) => skillB.Priority.CompareTo(skillA.Priority));
+    }
+
+    /// <summary>
     /// Finds the best matching skill based on conversation text.
     /// Returns null if no skill matches.
     /// </summary>

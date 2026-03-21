@@ -49,7 +49,7 @@ public sealed class SessionService
 
         _logger.LogInformation(
             "Session {SessionId} started for doctor {DoctorId} with patient {PatientId}",
-            session.Id, doctorId, request.PatientId ?? "anonymous");
+            session.Id, doctorId, request.PatientId ?? "none");
 
         return MapToResponse(session);
     }

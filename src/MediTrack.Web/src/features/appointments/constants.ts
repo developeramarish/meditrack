@@ -18,9 +18,9 @@ export const STATUS_STYLES: Record<AppointmentStatus, string> = {
   CheckedIn: "bg-info-50 border-l-info-700 text-info-900",
   InProgress: "bg-warning-50 border-l-warning-500 text-warning-900",
   Completed: "bg-success-50 border-l-success-500 text-success-900",
-  Cancelled: "bg-neutral-100 border-l-neutral-400 text-neutral-700",
+  Cancelled: "bg-muted dark:bg-muted/30 border-l-muted-foreground/40 dark:border-l-muted-foreground/50 text-muted-foreground dark:text-muted-foreground",
   NoShow: "bg-error-50 border-l-error-500 text-error-900",
-  Rescheduled: "bg-neutral-100 border-l-neutral-500 text-neutral-800",
+  Rescheduled: "bg-muted dark:bg-muted/30 border-l-muted-foreground/50 dark:border-l-muted-foreground/40 text-muted-foreground dark:text-muted-foreground",
 };
 
 export const DEFAULT_STATUS_STYLE = "bg-primary-100 border-l-primary-700 text-primary-900";

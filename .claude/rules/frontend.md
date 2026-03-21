@@ -1,6 +1,7 @@
 ---
 paths:
   - "src/MediTrack.Web/**"
+  - "design/**"
 ---
 
 # Frontend Rules
@@ -94,23 +95,40 @@ function Component({ children }: Props) {}
 - **Mobile-first**: design for 320px min, enhance with `sm:`, `md:`, `lg:` breakpoints
 - **Touch targets**: min `h-10 w-10` (40px) on mobile
 - **Tailwind only**: no CSS modules/SCSS. Use `clsxMerge` for conditional classes. Custom CSS only for: complex animations, third-party overrides, critical global resets
-- **Design tokens only**: `primary-700`, `neutral-900`, etc. Never `blue-500` or hex values
+- **Semantic tokens only**: `bg-card`, `text-foreground`, `border-border`. Never `bg-white`, `text-neutral-*`, or hex values. See Color Tokens below
 - **Icons**: Lucide React only (`h-5 w-5` UI, `h-4 w-4` inline)
 - **Class order**: Layout → Sizing → Shape → Colors → Animation → States → `props.className`
 
-### Color Tokens
-| Token | Usage |
-|-------|-------|
-| `primary-700` | Buttons, headers, links |
-| `secondary-700` | Secondary actions |
-| `neutral-900/700/500` | Headings / Body / Muted text |
-| `neutral-50` / `white` | Page bg / Card bg |
-| `neutral-200` | Borders |
-| `success/warning/error/info-500` | Status colors |
-| `status-scheduled/completed` | Appointment states |
-| `triage-critical/urgent/routine` | Medical urgency |
+### Color Tokens (Semantic Only — MANDATORY)
 
-**Contrast rule**: `-500` and lighter fail WCAG AA on white. Use `-600`+ for text.
+**NEVER** use `bg-white`, `text-neutral-*`, `border-neutral-*`, or any hardcoded Tailwind color.
+**ALWAYS** use semantic tokens that resolve to CSS variables (auto-adapt to any theme):
+
+| Token | Usage | BANNED Equivalent |
+|-------|-------|-------------------|
+| `bg-background` | Page background | ~~`bg-neutral-50`~~ |
+| `bg-card` | Cards, modals, elevated surfaces | ~~`bg-white`~~ |
+| `bg-muted` | Subtle surfaces, alt rows, input bg | ~~`bg-neutral-100`~~ |
+| `bg-popover` | Dropdowns, tooltips | ~~`bg-white`~~ |
+| `text-foreground` | Primary text, headings | ~~`text-neutral-900/800/700`~~ |
+| `text-muted-foreground` | Labels, secondary text, placeholders | ~~`text-neutral-600/500/400`~~ |
+| `border-border` | All borders and dividers | ~~`border-neutral-200/100`~~ |
+| `border-input` | Form input borders | ~~`border-neutral-200`~~ |
+| `ring-ring` | Focus rings | ~~`ring-neutral-200`~~ |
+| `from-background` / `to-card` | Gradients | ~~`from-neutral-50 to-white`~~ |
+| `primary-*` | Brand blue — buttons, headers, links | Allowed (semantic) |
+| `secondary-*` | Teal — supporting actions | Allowed (semantic) |
+| `accent-*` | Violet — highlights, Clara AI | Allowed (semantic) |
+| `success/warning/error/info-*` | Status feedback | Allowed (perceptual scales) |
+| `status-scheduled/completed` | Appointment workflow states | Allowed (fixed hex) |
+| `triage-critical/urgent/routine` | Medical urgency levels | Allowed (fixed hex) |
+| `healing-*` | Brand warm teal accents | Allowed (CSS var-backed) |
+
+**Why:** All color scales resolve to CSS variables with perceptual mapping. Adding a new theme = adding one object to `color-themes.ts`. The derivation engine generates 100+ CSS variables at runtime.
+
+**Perceptual mapping rule**: Shade numbers have consistent semantic meaning — `50` = subtle bg, `700` = prominent text — in both light AND dark mode. **Never add `dark:` overrides on color scales.** `bg-success-50 text-success-700` just works.
+
+**Contrast rule**: `-500` and lighter fail WCAG AA on light bg. Use `-600`+ for text.
 
 ### Spacing
 - Page: `mx-auto max-w-7xl px-4 sm:px-6 lg:px-8`

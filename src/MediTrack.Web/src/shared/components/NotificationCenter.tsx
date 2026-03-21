@@ -105,7 +105,7 @@ export function NotificationCenter() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <button className="relative rounded-lg p-2 text-neutral-500 transition-colors hover:bg-neutral-100">
+        <button className="relative rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted">
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
             <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-error-500 text-[10px] font-bold text-white ring-2 ring-white">
@@ -120,12 +120,12 @@ export function NotificationCenter() {
         sideOffset={8}
         className={clsxMerge(
           "w-80 sm:w-96",
-          "rounded-xl border border-neutral-200 bg-white p-0 shadow-lg"
+          "rounded-xl border border-border bg-card p-0 shadow-lg"
         )}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-neutral-200 px-4 py-3">
-          <h3 className="text-sm font-semibold text-neutral-900">
+        <div className="flex items-center justify-between border-b border-border px-4 py-3">
+          <h3 className="text-sm font-semibold text-foreground">
             Notifications
             {unreadCount > 0 && (
               <span className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-error-50 px-1.5 text-xs font-semibold text-error-700">
@@ -155,27 +155,23 @@ export function NotificationCenter() {
                 key={notification.id}
                 onClick={() => handleMarkAsRead(notification.id)}
                 className={clsxMerge(
-                  "flex w-full gap-3 border-l-2 px-4 py-3 text-left transition-colors hover:bg-neutral-50",
+                  "flex w-full gap-3 border-l-2 px-4 py-3 text-left transition-colors hover:bg-muted",
                   config.borderColor,
-                  !notification.isRead && "bg-neutral-50/50"
+                  !notification.isRead && "bg-muted/50"
                 )}
               >
-                <div className={clsxMerge("mt-0.5 flex-shrink-0", config.iconColor)}>
-                  <CategoryIcon className="h-4 w-4" />
-                </div>
+                <CategoryIcon className={clsxMerge("mt-0.5 h-4 w-4 flex-shrink-0", config.iconColor)} />
                 <div className="min-w-0 flex-1">
                   <p className={clsxMerge(
                     "text-sm leading-snug",
-                    notification.isRead ? "text-neutral-500" : "font-medium text-neutral-900"
+                    notification.isRead ? "text-muted-foreground" : "font-medium text-foreground"
                   )}>
                     {notification.title}
                   </p>
-                  <p className="mt-1 text-xs text-neutral-400">{notification.timeAgo}</p>
+                  <p className="mt-1 text-xs text-muted-foreground/70">{notification.timeAgo}</p>
                 </div>
                 {!notification.isRead && (
-                  <div className="mt-1.5 flex-shrink-0">
-                    <span className="block h-2 w-2 rounded-full bg-primary-700" />
-                  </div>
+                  <span className="mt-1.5 block h-2 w-2 flex-shrink-0 rounded-full bg-primary-700" />
                 )}
               </button>
             );
@@ -183,7 +179,7 @@ export function NotificationCenter() {
         </div>
 
         {/* Footer */}
-        <div className="border-t border-neutral-200 px-4 py-3">
+        <div className="border-t border-border px-4 py-3">
           <button className="w-full text-center text-sm font-medium text-primary-700 transition-colors hover:text-primary-800 hover:underline">
             View all notifications
           </button>

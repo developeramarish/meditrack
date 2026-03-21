@@ -60,13 +60,13 @@ export function FeaturesSection() {
   const { ref, isVisible } = useScrollReveal({ threshold: 0.2 });
 
   return (
-    <section id="features" className="bg-white py-10 md:py-16">
+    <section id="features" className="bg-card py-10 md:py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-neutral-900 sm:text-4xl">
+          <h2 className="text-3xl font-bold text-foreground sm:text-4xl">
             Everything you need to run a modern practice
           </h2>
-          <p className="mt-4 text-lg text-neutral-600">
+          <p className="mt-4 text-lg text-muted-foreground">
             Built for healthcare professionals who want AI-augmented workflows without the complexity.
           </p>
         </div>
@@ -78,8 +78,8 @@ export function FeaturesSection() {
                 <div className={clsxMerge("mb-4 flex h-11 w-11 items-center justify-center rounded-xl", feature.iconBg)}>
                   <feature.icon className={clsxMerge("h-5 w-5", feature.iconColor)} />
                 </div>
-                <h3 className="text-base font-semibold text-neutral-900">{feature.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-neutral-600">{feature.description}</p>
+                <h3 className="text-base font-semibold text-foreground">{feature.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{feature.description}</p>
                 {(feature.to || feature.isAnchor) && (
                   <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-accent-700 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
                     {feature.isAnchor ? "See demo" : "Explore"} <ArrowRight className="h-3 w-3" />
@@ -98,7 +98,7 @@ export function FeaturesSection() {
             };
 
             const cardClassName = clsxMerge(
-              "group rounded-xl border border-neutral-200 bg-white p-5",
+              "group rounded-xl border border-border bg-card p-5",
               "transition-all duration-200 hover:border-accent-200 hover:shadow-md"
             );
 

@@ -150,20 +150,20 @@ export function ClaraPanel() {
         className={clsxMerge(
           "fixed inset-y-0 right-0 z-50",
           "w-[85vw] sm:max-w-[440px]",
-          "flex flex-col bg-white shadow-lg",
+          "flex flex-col bg-card shadow-lg",
           "transition-transform duration-300 ease-in-out",
           isOpen ? "translate-x-0" : "translate-x-full"
         )}
         onClick={handlePanelClick}
       >
         {/* Header */}
-        <div className="flex items-center gap-3 border-b border-neutral-200 px-4 py-3">
+        <div className="flex items-center gap-3 border-b border-border px-4 py-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-accent-500 to-accent-700">
             <Sparkles className="h-4 w-4 text-white" />
           </div>
           <div className="flex-1">
-            <h2 className="text-sm font-semibold text-neutral-900">Clara</h2>
-            <p className="text-xs text-neutral-500">
+            <h2 className="text-sm font-semibold text-foreground">Clara</h2>
+            <p className="text-xs text-muted-foreground">
               {pageContext.patientName
                 ? `Assisting with ${pageContext.patientName}`
                 : "AI Medical Secretary"}
@@ -173,7 +173,7 @@ export function ClaraPanel() {
             onClick={closePanel}
             className={clsxMerge(
               "flex h-8 w-8 items-center justify-center rounded-lg",
-              "text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700",
+              "text-muted-foreground hover:bg-muted hover:text-foreground/80",
               "transition-colors"
             )}
             aria-label="Close Clara panel"
@@ -193,7 +193,7 @@ export function ClaraPanel() {
               "text-white transition-opacity hover:opacity-90"
             )}
           >
-            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-white/20">
+            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-accent-foreground/20">
               <Mic className="h-4 w-4" />
             </div>
             <div className="flex-1 text-left">
@@ -212,7 +212,7 @@ export function ClaraPanel() {
           {/* Suggestion chips (show only when no messages) */}
           {messages.length === 0 && (
             <div className="space-y-2">
-              <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Try asking
               </p>
               {claraSuggestions
@@ -228,24 +228,24 @@ export function ClaraPanel() {
                     key={suggestion.id}
                     onClick={() => handleSuggestionClick(suggestion.prompt)}
                     className={clsxMerge(
-                      "flex w-full items-center gap-3 rounded-lg border border-neutral-200 p-3",
-                      "bg-white text-left transition-all",
+                      "flex w-full items-center gap-3 rounded-lg border border-border p-3",
+                      "bg-card text-left transition-all",
                       "hover:border-accent-300 hover:shadow-sm"
                     )}
                   >
                     <div
                       className={clsxMerge(
                         "flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg",
-                        "bg-neutral-50 text-neutral-700"
+                        "bg-muted text-foreground/80"
                       )}
                     >
                       <SuggestionIcon className="h-4 w-4" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-neutral-900">
+                      <p className="truncate text-sm font-medium text-foreground">
                         {suggestion.label}
                       </p>
-                      <p className="text-xs text-neutral-500">
+                      <p className="text-xs text-muted-foreground">
                         {suggestion.category}
                       </p>
                     </div>
@@ -268,15 +268,13 @@ export function ClaraPanel() {
                 >
                   <div
                     className={clsxMerge(
-                      "max-w-[85%] rounded-lg px-3 py-2 text-sm",
+                      "max-w-[85%] whitespace-pre-wrap break-words rounded-lg px-3 py-2 text-sm",
                       message.role === "user"
                         ? "bg-primary-50 text-primary-800"
-                        : "bg-accent-50 text-neutral-900"
+                        : "bg-accent-50 text-foreground dark:text-foreground"
                     )}
                   >
-                    <div className="whitespace-pre-wrap break-words">
-                      {formatMessageContent(message.content)}
-                    </div>
+                    {formatMessageContent(message.content)}
                   </div>
                 </div>
               ))}
@@ -286,7 +284,7 @@ export function ClaraPanel() {
         </div>
 
         {/* Input bar (sticky bottom) */}
-        <div className="border-t border-neutral-200 px-4 py-3">
+        <div className="border-t border-border px-4 py-3">
           <form onSubmit={handleSubmit} className="flex items-center gap-2">
             <input
               ref={inputRef}
@@ -295,8 +293,8 @@ export function ClaraPanel() {
               onChange={(event) => setInputValue(event.target.value)}
               placeholder="Ask Clara anything..."
               className={clsxMerge(
-                "h-10 flex-1 rounded-lg border border-neutral-200 px-3 text-sm",
-                "placeholder:text-neutral-500",
+                "h-10 flex-1 rounded-lg border border-border bg-input text-foreground px-3 text-sm",
+                "placeholder:text-muted-foreground",
                 "focus:border-accent-500 focus:outline-none focus:ring-2 focus:ring-accent-500"
               )}
             />

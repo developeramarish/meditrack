@@ -52,6 +52,7 @@
   <!-- Allow integration test project to access internal types (e.g. Program) -->
   <ItemGroup>
     <InternalsVisibleTo Include="Clara.IntegrationTests" />
+    <InternalsVisibleTo Include="Clara.UnitTests" />
   </ItemGroup>
 
   <!-- Include test-data/ in Debug only (not in production image) -->
