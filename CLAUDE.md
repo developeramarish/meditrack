@@ -116,29 +116,41 @@ dotnet test --filter "FullyQualifiedName~UnitTests"  # Unit tests only (no infra
 
 ### Architecture
 ```
-color-themes.ts (config: palette + metadata)
-  → themeDerivation.ts (5 hex → 25+ CSS vars, cached)
-    → use-color-theme.ts (<style> injection at runtime)
-      → ThemeSwitcher.tsx (UI popover)
+color-themes.ts (config: palette + 5 brand colors + optional semantic overrides)
+  → themeDerivation.ts (5 hex → 100+ CSS vars: core + scales + harmonized semantics)
+    → use-color-theme.ts (<style> injection at runtime, cached)
+      → ThemeSwitcher.tsx (sidebar popover) / ThemeSwitcherPopover (Radix, standalone pages)
 ```
 
 ### Theme File Map
 
 | File | Project | Purpose |
 |------|---------|---------|
-| `shared/config/color-themes.ts` | Design | Single source of truth — palette definitions |
-| `shared/utils/themeDerivation.ts` | Both | Derivation engine (5 colors → 25+ HSL vars) |
-| `hooks/use-color-theme.ts` | Design | Runtime `<style>` injection + localStorage |
+| `shared/config/color-themes.ts` | Both | Single source of truth — palette definitions + semantic overrides |
+| `shared/utils/themeDerivation.ts` | Both | Derivation engine (5 colors → 100+ HSL vars, perceptual scales) |
+| `shared/utils/badgeStyles.ts` | Web | Centralized badge variant classes (theme-aware, no `dark:` needed) |
+| `hooks/use-color-theme.ts` | Both | Runtime `<style>` injection + localStorage |
 | `hooks/use-theme.ts` | Both | Light/dark/system mode toggle |
-| `components/ThemeSwitcher.tsx` | Design | Popover from sidebar palette icon |
+| `components/ThemeSwitcher.tsx` | Both | Sidebar popover + `ThemeSwitcherPopover` (Radix, Landing/Login) |
 | `components/AppShell.tsx` | Design | `SidebarThemeButton` + mobile "Theme" tab |
-| `index.css` | Both | `:root` (light) + `.dark` (hand-tuned Deep Ocean) |
-| `tailwind.config.ts` | Both | CSS var → Tailwind bridge + healing palette |
+| `index.css` | Both | `:root` + `.dark` defaults + color scale CSS vars + global thin scrollbar |
+| `tailwind.config.ts` | Both | CSS var → Tailwind bridge via `cssScale()` helper |
 | `docs/theming-guide.md` | — | Developer reference |
+
+### Perceptual Color Scales
+The derivation engine generates **100+ CSS variables** per theme:
+- **Brand scales**: primary/secondary/accent (50-950, 11 shades each)
+- **Semantic scales**: success/warning/error/info (50-900, 10 shades each, harmonized with primary hue)
+- **Healing scale**: 50-600 (7 shades, derived from secondary biased toward teal)
+
+Shade numbers have **consistent semantic meaning** regardless of light/dark:
+- `50` = subtle background, `200` = border, `500` = solid/base, `700` = prominent text
+- **No `dark:` overrides needed** for scale classes — `bg-success-50 text-success-700` just works
 
 ### Rules
 - **Semantic tokens only** in components — see `.claude/rules/frontend.md` Color Tokens
-- **Dual-update**: `index.css` + `tailwind.config.ts` + `themeDerivation.ts` must sync Web ↔ Design
+- **No `dark:` overrides on color scales** — perceptual mapping handles light/dark automatically
+- **Dual-update**: `index.css` + `tailwind.config.ts` + `themeDerivation.ts` + `color-themes.ts` must sync Web ↔ Design
 - **No background tints** for row states — use `border-l-2 border-l-{color}` indicators instead
 - **Inputs** must have explicit `bg-input text-foreground` (avoid inheriting transparent bg)
 - Selection is **mutually exclusive**: Light/Dark/System OR a color palette, never both

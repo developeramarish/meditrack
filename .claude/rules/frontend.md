@@ -119,12 +119,14 @@ function Component({ children }: Props) {}
 | `primary-*` | Brand blue — buttons, headers, links | Allowed (semantic) |
 | `secondary-*` | Teal — supporting actions | Allowed (semantic) |
 | `accent-*` | Violet — highlights, Clara AI | Allowed (semantic) |
-| `success/warning/error/info-*` | Status feedback | Allowed (semantic) |
-| `status-scheduled/completed` | Appointment workflow states | Allowed (semantic) |
-| `triage-critical/urgent/routine` | Medical urgency levels | Allowed (semantic) |
-| `healing-*` | Brand warm teal accents | Allowed (design-only) |
+| `success/warning/error/info-*` | Status feedback | Allowed (perceptual scales) |
+| `status-scheduled/completed` | Appointment workflow states | Allowed (fixed hex) |
+| `triage-critical/urgent/routine` | Medical urgency levels | Allowed (fixed hex) |
+| `healing-*` | Brand warm teal accents | Allowed (CSS var-backed) |
 
-**Why:** Semantic tokens resolve to CSS variables. Adding a new theme = adding 25 CSS variables. Hardcoded colors bypass theming and break in dark mode. See `docs/theming-guide.md`.
+**Why:** All color scales resolve to CSS variables with perceptual mapping. Adding a new theme = adding one object to `color-themes.ts`. The derivation engine generates 100+ CSS variables at runtime.
+
+**Perceptual mapping rule**: Shade numbers have consistent semantic meaning — `50` = subtle bg, `700` = prominent text — in both light AND dark mode. **Never add `dark:` overrides on color scales.** `bg-success-50 text-success-700` just works.
 
 **Contrast rule**: `-500` and lighter fail WCAG AA on light bg. Use `-600`+ for text.
 

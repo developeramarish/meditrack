@@ -6,9 +6,18 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 ## [Unreleased]
 
 ### Added
+- Perceptual color scale system — 100+ CSS variables per theme (2026-03-21)
+  - `deriveColorScale()` generates brand scales (50-950) and semantic scales (50-900) from palette
+  - `harmonizeHue()` shifts success/warning/error/info toward primary hue for visual cohesion
+  - Curated semantic overrides per theme (aurora green for Northern Lights, terracotta for Emerald Forest, etc.)
+  - All scales use CSS variables — `bg-success-50 text-success-700` works in any mode without `dark:` overrides
+  - `badgeStyles.ts` centralized badge variant classes (web)
+- `ThemeSwitcherPopover` — Radix Popover variant for Landing + Login pages (2026-03-21)
+- Global thin scrollbar — 4px, `--border` color, auto-adapts to theme (2026-03-21)
+- Theme palette button on Landing page navbar + Login page (2026-03-21)
 - SOLID theme switcher system with centralized config (2026-03-19)
   - `color-themes.ts` — single source of truth. New tenant theme = add one object
-  - `themeDerivation.ts` — engine: 5 hex → 25+ CSS variables (pre-computed, cached)
+  - `themeDerivation.ts` — engine: 5 hex → 100+ CSS variables (perceptual scales, cached)
   - `use-color-theme.ts` — runtime `<style>` injection, localStorage persistence
   - `ThemeSwitcher.tsx` — popover panel (sidebar on desktop, bottom nav on mobile)
   - 10 curated themes: 5 dark (Northern Lights, Luminous Flow, Dreamscapes, Emerald Forest, Velvet Night) + 5 light (Mimi Pink, Baby Blue Summer, Health Summit, French Riviera, Ethereal Escapes)
@@ -32,6 +41,11 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - REVIEW.md for code review standards
 
 ### Changed
+- All color scales in `tailwind.config.ts` now use `hsl(var(--xxx))` via `cssScale()` helper — no hardcoded hex (2026-03-21)
+- Removed 287 `dark:` color scale overrides across 21 files — perceptual mapping handles light/dark automatically (2026-03-21)
+- `ThemeSwitcher.tsx` refactored: extracted `ThemeSwitcherContent` + `PaletteRow` + `MODES` constant, flattened DOM (~40 fewer elements) (2026-03-21)
+- Removed healing `dark:` CSS hacks from both `index.css` files — now CSS variable-backed (2026-03-21)
+- DOM flattening: removed wrapper divs in NotificationCenter, ClaraPanel, Layout, PageExplorer (2026-03-21)
 - Login page: removed decorative circles and 3D card wrapper (ugly in dark themes) (2026-03-20)
 - Theme derivation engine refactored: pre-computed ParsedColor, WCAG luminance for isDark(), muted-foreground AA clamp (2026-03-19)
 - Removed dead `applyTheme()` from themeDerivation.ts — superseded by use-color-theme hook (2026-03-19)
