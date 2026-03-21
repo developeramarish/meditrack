@@ -28,7 +28,7 @@ import { ClaraFab } from "./clara/ClaraFab";
 import { ClaraPanel } from "./clara/ClaraPanel";
 import { FeatureGuideButton } from "./FeatureGuide";
 import { CommandPalette } from "./CommandPalette";
-import { ThemeSwitcher } from "./ThemeSwitcher";
+import { ThemeSwitcher, TOGGLE_THEME_EVENT } from "./ThemeSwitcher";
 import { useColorTheme } from "@/shared/hooks/use-color-theme";
 
 interface LayoutProps {
@@ -172,7 +172,7 @@ function MobileBottomNav() {
           })}
           {/* Theme palette button */}
           <button
-            onClick={() => document.dispatchEvent(new CustomEvent("toggle-theme-switcher"))}
+            onClick={() => document.dispatchEvent(new CustomEvent(TOGGLE_THEME_EVENT))}
             className="relative flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-medium transition-colors text-muted-foreground active:text-foreground/80"
           >
             <Palette className="h-5 w-5" />
@@ -224,16 +224,16 @@ const adminNavItems: NavItem[] = [
 
 function SidebarThemeButton() {
   const { colorTheme } = useColorTheme();
-  const isCustom = colorTheme !== "default";
+  const isCustomTheme = colorTheme !== "default";
 
   return (
     <button
-      onClick={() => document.dispatchEvent(new CustomEvent("toggle-theme-switcher"))}
+      onClick={() => document.dispatchEvent(new CustomEvent(TOGGLE_THEME_EVENT))}
       className="relative rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
       aria-label="Theme settings"
     >
       <Palette className="h-4 w-4" />
-      {isCustom && (
+      {isCustomTheme && (
         <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-primary" />
       )}
     </button>

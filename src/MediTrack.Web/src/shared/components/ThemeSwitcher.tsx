@@ -4,6 +4,9 @@ import { clsxMerge } from "@/shared/utils/clsxMerge";
 import { useTheme } from "@/shared/hooks/use-theme";
 import { useColorTheme } from "@/shared/hooks/use-color-theme";
 
+/** Custom event name for toggling the theme switcher popover */
+export const TOGGLE_THEME_EVENT = "toggle-theme-switcher";
+
 /**
  * Theme Switcher — popover panel triggered from the sidebar palette button.
  *
@@ -18,8 +21,8 @@ export function ThemeSwitcher() {
   // Listen for toggle event from SidebarThemeButton
   useEffect(() => {
     const handler = () => setIsOpen((prev) => !prev);
-    document.addEventListener("toggle-theme-switcher", handler);
-    return () => document.removeEventListener("toggle-theme-switcher", handler);
+    document.addEventListener(TOGGLE_THEME_EVENT, handler);
+    return () => document.removeEventListener(TOGGLE_THEME_EVENT, handler);
   }, []);
 
   // Close on Escape
@@ -57,6 +60,9 @@ export function ThemeSwitcher() {
 
       {/* Panel — mobile: centered above bottom nav, desktop: above sidebar footer */}
       <div
+        role="dialog"
+        aria-label="Theme settings"
+        aria-hidden={!isOpen}
         className={clsxMerge(
           "fixed z-50",
           "bottom-16 left-4 right-4 md:left-[4.5rem] md:right-auto md:bottom-16",
@@ -78,7 +84,8 @@ export function ThemeSwitcher() {
           <button
             type="button"
             onClick={() => setIsOpen(false)}
-            className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+            className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+            aria-label="Close theme settings"
           >
             <X className="h-3.5 w-3.5" />
           </button>
@@ -145,9 +152,9 @@ export function ThemeSwitcher() {
                       >
                         {/* Swatch row */}
                         <div className="flex gap-0.5">
-                          {themeConfig.swatches.map((color, index) => (
+                          {themeConfig.swatches.map((color) => (
                             <div
-                              key={index}
+                              key={color}
                               className="h-5 w-5 rounded-full border border-border/30"
                               style={{ backgroundColor: color }}
                             />

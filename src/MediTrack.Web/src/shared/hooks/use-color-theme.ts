@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { deriveTheme } from "@/shared/utils/themeDerivation";
 import { COLOR_THEME_CONFIGS, type ColorThemeDefinition } from "@/shared/config/color-themes";
 
@@ -36,18 +36,15 @@ const STORAGE_KEY = "meditrack-color-theme";
 
 /** Module-level cache — avoids reading localStorage on every React render check */
 let currentThemeId: ColorThemeId = "default";
-let isInitialized = false;
 
-function initFromStorage() {
-  if (isInitialized) return;
-  isInitialized = true;
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored === "default" || (stored && COLOR_THEME_CONFIGS.some((t) => t.id === stored))) {
-      currentThemeId = stored as ColorThemeId;
-    }
-  } catch { /* localStorage unavailable */ }
-}
+// Initialize from localStorage at module load time (not inside getSnapshot)
+// so the snapshot function remains pure and side-effect-free.
+try {
+  const stored = localStorage.getItem(STORAGE_KEY);
+  if (stored === "default" || (stored && COLOR_THEME_CONFIGS.some((t) => t.id === stored))) {
+    currentThemeId = stored as ColorThemeId;
+  }
+} catch { /* localStorage unavailable */ }
 
 /**
  * Apply color theme by injecting a <style> block with derived CSS variables.
@@ -106,7 +103,6 @@ function emitChange() {
 }
 
 function getSnapshot(): ColorThemeId {
-  initFromStorage();
   return currentThemeId;
 }
 
@@ -126,10 +122,10 @@ export function useColorTheme() {
     applyColorTheme(colorTheme);
   }, [colorTheme]);
 
-  const setColorTheme = useCallback((newTheme: ColorThemeId) => {
+  const setColorTheme = (newTheme: ColorThemeId) => {
     applyColorTheme(newTheme);
     emitChange();
-  }, []);
+  };
 
   return { colorTheme, setColorTheme, themes: COLOR_THEME_CONFIGS } as const;
 }
