@@ -43,7 +43,7 @@ export interface ColorThemeDefinition {
  *
  * Adding a new theme = add one object. The derivation engine handles the rest.
  */
-export const COLOR_THEME_CONFIGS: readonly ColorThemeDefinition[] = [
+export const COLOR_THEME_CONFIGS = [
   // ── Dark Themes ───────────────────────────────────────────────
 
   {
@@ -190,4 +190,4 @@ export const COLOR_THEME_CONFIGS: readonly ColorThemeDefinition[] = [
     },
     swatches: ["#DEE8E2", "#2B9E9A", "#1D5868", "#7BBFAA", "#152A30"],
   },
-];
+] as const satisfies readonly ColorThemeDefinition[];

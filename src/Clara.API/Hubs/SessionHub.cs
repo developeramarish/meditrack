@@ -67,6 +67,8 @@ public sealed class SessionHub : Hub
 
         if (!Guid.TryParse(sessionId, out var sessionGuid))
         {
+            _logger.LogWarning("Invalid session ID format in JoinSession ({Length} chars)", sessionId?.Length);
+            await Clients.Caller.SendAsync(SignalREvents.SessionError, "Invalid session ID format");
             return;
         }
 
@@ -133,6 +135,12 @@ public sealed class SessionHub : Hub
     /// </summary>
     public async Task LeaveSession(string sessionId)
     {
+        if (!Guid.TryParse(sessionId, out _))
+        {
+            _logger.LogWarning("Invalid session ID format in LeaveSession");
+            return;
+        }
+
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, sessionId);
 
         _logger.LogInformation(
@@ -151,6 +159,8 @@ public sealed class SessionHub : Hub
 
         if (!Guid.TryParse(sessionId, out var sessionGuid))
         {
+            _logger.LogWarning("Invalid session ID format in SendTranscriptLine");
+            await Clients.Caller.SendAsync(SignalREvents.TranscriptError, "Invalid session ID format");
             return;
         }
 
@@ -158,13 +168,19 @@ public sealed class SessionHub : Hub
 
         if (!SessionHubValidation.IsValidSpeaker(speaker))
         {
-            _logger.LogWarning("Invalid speaker role rejected");
+            _logger.LogWarning("Invalid speaker role rejected: {Speaker}", speaker);
+            await Clients.Caller.SendAsync(SignalREvents.TranscriptError, "Invalid speaker role");
             return;
         }
 
         if (!SessionHubValidation.IsValidTranscriptText(text))
         {
-            _logger.LogWarning("Transcript text rejected (empty or exceeds limit)");
+            _logger.LogWarning(
+                "Transcript text rejected (empty or exceeds {Limit} chars)",
+                SessionHubValidation.MaxTranscriptLength);
+            await Clients.Caller.SendAsync(
+                SignalREvents.TranscriptError,
+                $"Transcript text must be between 1 and {SessionHubValidation.MaxTranscriptLength} characters");
             return;
         }
 
@@ -199,6 +215,8 @@ public sealed class SessionHub : Hub
 
             if (!Guid.TryParse(sessionId, out var sessionGuid))
             {
+                _logger.LogWarning("Invalid session ID format in StreamAudioChunk");
+                await Clients.Caller.SendAsync(SignalREvents.SttError, "Invalid session ID format");
                 return;
             }
 

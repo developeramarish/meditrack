@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 
 type Theme = "light" | "dark" | "system";
 
@@ -17,21 +17,23 @@ function resolveTheme(preference: Theme): "light" | "dark" {
   return preference;
 }
 
-/** Read stored preference (falls back to "system"). */
-function getStoredPreference(): Theme {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored === "light" || stored === "dark" || stored === "system") {
-      return stored;
-    }
-  } catch {
-    // SSR or localStorage unavailable — fall back silently
+// ── Module-level state ──────────────────────────────────────────
+// Cached in a module variable so getSnapshot remains pure (no localStorage I/O).
+
+let currentPreference: Theme = "system";
+
+try {
+  const stored = localStorage.getItem(STORAGE_KEY);
+  if (stored === "light" || stored === "dark" || stored === "system") {
+    currentPreference = stored;
   }
-  return "system";
+} catch {
+  // SSR or localStorage unavailable — fall back to "system"
 }
 
 /** Apply .dark class to <html> and persist preference. */
 function applyTheme(preference: Theme) {
+  currentPreference = preference;
   const resolved = resolveTheme(preference);
   const root = document.documentElement;
 
@@ -71,7 +73,7 @@ function emitChange() {
 }
 
 function getSnapshot(): Theme {
-  return getStoredPreference();
+  return currentPreference;
 }
 
 /**
@@ -103,16 +105,16 @@ export function useTheme() {
     return () => mediaQuery.removeEventListener("change", handler);
   }, [theme]);
 
-  const setTheme = useCallback((newTheme: Theme) => {
+  const setTheme = (newTheme: Theme) => {
     applyTheme(newTheme);
     emitChange();
-  }, []);
+  };
 
-  const toggleTheme = useCallback(() => {
+  const toggleTheme = () => {
     const next = resolvedTheme === "dark" ? "light" : "dark";
     applyTheme(next);
     emitChange();
-  }, [resolvedTheme]);
+  };
 
   return { theme, resolvedTheme, setTheme, toggleTheme } as const;
 }

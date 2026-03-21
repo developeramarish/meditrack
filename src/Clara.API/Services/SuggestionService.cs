@@ -12,7 +12,7 @@ namespace Clara.API.Services;
 /// Generates AI suggestions using LLM with RAG context and patient information.
 /// Uses IChatClient (Microsoft.Extensions.AI) for LLM-agnostic integration.
 /// </summary>
-public sealed class SuggestionService
+public sealed partial class SuggestionService
 {
     private readonly IChatClient _chatClient;
     private readonly ClaraDbContext _db;
@@ -28,13 +28,13 @@ public sealed class SuggestionService
         PropertyNameCaseInsensitive = true
     };
 
-    private static readonly string[] ValidTypes = ["clinical", "medication", "follow_up", "differential"];
-    private static readonly string[] ValidUrgencies = ["low", "medium", "high"];
+    [GeneratedRegex("<[^>]+>")]
+    private static partial Regex HtmlTagPattern();
 
     private static string StripHtmlTags(string input)
     {
         if (string.IsNullOrEmpty(input)) return input;
-        return Regex.Replace(input, "<[^>]+>", "");
+        return HtmlTagPattern().Replace(input, "");
     }
 
     public SuggestionService(
@@ -321,21 +321,21 @@ public sealed class SuggestionService
             foreach (var suggestion in result.Suggestions)
             {
                 // Strip HTML tags (XSS prevention — OWASP A05:2025)
-                suggestion.Content = StripHtmlTags(suggestion.Content);
+                suggestion.Content = StripHtmlTags(suggestion.Content ?? string.Empty);
 
                 // Truncate content to reasonable length
                 if (suggestion.Content.Length > 1000)
                     suggestion.Content = suggestion.Content[..1000];
 
                 // Whitelist type values
-                suggestion.Type = ValidTypes.Contains(suggestion.Type, StringComparer.OrdinalIgnoreCase)
+                suggestion.Type = SuggestionType.All.Contains(suggestion.Type, StringComparer.OrdinalIgnoreCase)
                     ? suggestion.Type
-                    : "clinical";
+                    : SuggestionType.Clinical;
 
                 // Whitelist urgency values
-                suggestion.Urgency = ValidUrgencies.Contains(suggestion.Urgency, StringComparer.OrdinalIgnoreCase)
+                suggestion.Urgency = SuggestionUrgency.All.Contains(suggestion.Urgency, StringComparer.OrdinalIgnoreCase)
                     ? suggestion.Urgency
-                    : "medium";
+                    : SuggestionUrgency.Medium;
 
                 suggestion.Confidence = suggestion.Confidence is < 0 or > 1 ? 0.5f : suggestion.Confidence;
             }

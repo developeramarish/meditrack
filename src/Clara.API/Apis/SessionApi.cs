@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Clara.API.Application.Models;
+using Clara.API.Domain;
 using Clara.API.Extensions;
 using Clara.API.Hubs;
 using Clara.API.Services;

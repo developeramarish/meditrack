@@ -1,4 +1,4 @@
-using Clara.API.Services;
+using Clara.API.Domain;
 
 namespace Clara.API.Hubs;
 

@@ -37,9 +37,14 @@ export interface DerivedTheme {
 
 // ── Color Math Helpers ───────────────────────────────────────────
 
-/** Parse hex (#RRGGBB) to [R, G, B] 0-255 */
+const HEX_PATTERN = /^[0-9a-fA-F]{6}$/;
+
+/** Parse hex (#RRGGBB) to [R, G, B] 0-255. Throws on invalid input. */
 function hexToRgb(hex: string): [number, number, number] {
   const clean = hex.replace('#', '');
+  if (!HEX_PATTERN.test(clean)) {
+    throw new Error(`Invalid hex color: "${hex}". Expected 6-character hex (e.g., #FF00AA).`);
+  }
   return [
     parseInt(clean.slice(0, 2), 16),
     parseInt(clean.slice(2, 4), 16),

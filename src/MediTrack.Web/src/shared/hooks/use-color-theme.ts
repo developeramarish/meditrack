@@ -65,7 +65,13 @@ function applyColorTheme(themeId: ColorThemeId) {
   }
 
   const config = COLOR_THEME_CONFIGS.find((t) => t.id === themeId);
-  if (!config) return;
+  if (!config) {
+    // Theme was removed from config — reset to default
+    console.warn(`Color theme "${themeId}" not found in config. Resetting to default.`);
+    currentThemeId = "default";
+    try { localStorage.setItem(STORAGE_KEY, "default"); } catch { /* non-critical */ }
+    return;
+  }
 
   const root = document.documentElement;
 

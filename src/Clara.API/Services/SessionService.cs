@@ -47,7 +47,9 @@ public sealed class SessionService
         _db.Sessions.Add(session);
         await _db.SaveChangesAsync(cancellationToken);
 
-        _logger.LogInformation("Session {SessionId} started", session.Id);
+        _logger.LogInformation(
+            "Session {SessionId} started for doctor {DoctorId} with patient {PatientId}",
+            session.Id, doctorId, request.PatientId ?? "none");
 
         return MapToResponse(session);
     }
@@ -125,8 +127,9 @@ public sealed class SessionService
         // Clean up batch trigger timer to prevent Timer leak
         _batchTriggerService.CleanupSession(sessionId.ToString());
 
-        _logger.LogInformation("Session {SessionId} ended. Duration: {Duration}",
-            session.Id, session.EndedAt - session.StartedAt);
+        _logger.LogInformation(
+            "Session {SessionId} ended for doctor {DoctorId}. Duration: {Duration}",
+            session.Id, doctorId, session.EndedAt - session.StartedAt);
 
         return MapToResponse(session);
     }

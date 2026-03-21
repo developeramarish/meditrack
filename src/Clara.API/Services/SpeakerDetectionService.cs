@@ -1,4 +1,5 @@
 using Clara.API.Data;
+using Clara.API.Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace Clara.API.Services;

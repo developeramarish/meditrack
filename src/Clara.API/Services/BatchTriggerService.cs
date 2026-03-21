@@ -189,21 +189,4 @@ public sealed class BatchTriggerService : IDisposable
     }
 }
 
-/// <summary>
-/// Speaker role constants.
-/// </summary>
-public static class SpeakerRole
-{
-    public const string Doctor = "Doctor";
-    public const string Patient = "Patient";
-}
-
-/// <summary>
-/// Suggestion source constants — internal routing labels, not shown to users.
-/// </summary>
-public static class SuggestionSources
-{
-    public const string Batch = "batch";
-    public const string OnDemand = "on_demand";
-    public const string DevForce = "dev_force";
-}
+// SpeakerRole, SuggestionSources moved to Domain/Constants.cs

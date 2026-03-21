@@ -12,4 +12,6 @@ public static class SignalREvents
     public const string SessionJoined = "SessionJoined";
     public const string SessionLeft = "SessionLeft";
     public const string SttError = "SttError";
+    public const string SessionError = "SessionError";
+    public const string TranscriptError = "TranscriptError";
 }
