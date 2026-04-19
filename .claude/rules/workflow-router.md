@@ -15,6 +15,12 @@ When the user's request matches a pattern below, suggest the appropriate workflo
 
 This is your **model gateway**. Route every task to the cheapest model that can do the job well.
 
+| Tier | Model ID | Alias |
+|------|----------|-------|
+| 🟢 Haiku | `claude-haiku-4-5-20251001` | `haiku` |
+| 🟡 Sonnet | `claude-sonnet-4-6` | `sonnet` |
+| 🔴 Opus | `claude-opus-4-7` | `opus` |
+
 | Task type | Agent to use | Model tier | Why |
 |-----------|-------------|------------|-----|
 | Explore, search, "where is X", "does this exist?" | `scout` | **Haiku** 🟢 | Read-only; no reasoning needed |

@@ -158,5 +158,6 @@
     "coderabbit@claude-plugins-official": true
   },
   "model": "claude-sonnet-4-6",
+  "advisorModel": "claude-haiku-4-5-20251001",
   "effortLevel": "medium"
 }
